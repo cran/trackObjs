@@ -324,9 +324,9 @@ getDataDir <- function(trackingDir) {
     trackingDir
 }
 
-tracked.envs <- function(envs=search()) {
-    i <- sapply(envs, function(env) env.is.tracked(env=env))
-    envs[i]
+tracked.envs <- function(envirs=search()) {
+    i <- sapply(envirs, function(envir) env.is.tracked(envir=as.environment(envir)))
+    envirs[i]
 }
 
 track <- function(expr, pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL, all=FALSE) {

@@ -58,47 +58,44 @@ track.load(files, pos = 1, envir = as.environment(pos), list = NULL,
 \details{
   These functions are executed for their side effects:
   \itemize{
-  \item \code{track}{: start tracking the specified variables}
-  \item \code{untrack}{: stop tracking the specified variables, leaving the object in \code{envir} so that it can
+  \item \code{track}: start tracking the specified variables
+  \item \code{untrack}: stop tracking the specified variables, leaving the object in \code{envir} so that it can
     still be used.  If \code{keep.in.db=TRUE}, the variable is left
     in the tracking environment (but is masked), if
     \code{keep.in.db=FALSE} (the default), 
     all trace of the variable is completely removed from the tracking
-    environment.}
-  \item \code{track.remove}{: completely remove all
-  traces of a tracked variable}
-  \item \code{track.save}{: write unsaved variables to disk}
-  \item \code{track.flush}{: write unsaved variables to disk, and remove from memory}
-  \item \code{track.forget}{: delete cached
+    environment.
+  \item \code{track.remove}: completely remove all
+  traces of a tracked variable
+  \item \code{track.save}: write unsaved variables to disk
+  \item \code{track.flush}: write unsaved variables to disk, and remove from memory
+  \item \code{track.forget}: delete cached
   versions without saving to file (file version will be retrieved next
-  time the variable is accessed)}
-  \item \code{track.restart}{: reload variable
-  values from disk (can forget all cached vars, remove no-longer existing tracked vars)}
-  \item \code{track.load}{: load variables from a
+  time the variable is accessed)
+  \item \code{track.restart}: reload variable
+  values from disk (can forget all cached vars, remove no-longer existing tracked vars)
+  \item \code{track.load}: load variables from a
   saved RData file into the tracking session - if \code{list} is
   supplied, only these variables are loaded in.  Already existing
-  variables will be skipped and not overwritten unless \code{clobber=TRUE} is supplied.}
+  variables will be skipped and not overwritten unless \code{clobber=TRUE} is supplied.
 }
 }
 \value{
   The value returned from these functions is invisible and typically contains the names
   of objects acted upon.
-  \itemize{
-    \item{\code{track}}{a character vector containing the names of
+
+    \item{track:}{a character vector containing the names of
       objects added to the tracking environment}
-    \item{}{a character vector containing the names of
-      objects removed from the tracking environment}
-    \item{\code{untrack}, \code{track.remove}, \code{track.save},
-      \code{track.flush}, \code{track.forget}, \code{track.restart}}{a character vector containing the names of
+    \item{untrack, track.remove, track.save, track.flush, track.forget, track.restart:}{a
+      character vector containing the names of
       objects in the tracking environment that were acted upon}
-    \item{\code{track.load}}{: a list with two components:
+    \item{track.load:}{a list with two components:
       \itemize{
-	\item{\code{loaded}}{: names of objects that were loaded from \code{file}}
-	\item{\code{skipped}}{: names of objects in \code{file} that
+	\item{\code{loaded}:}{names of objects that were loaded from \code{file}}
+	\item{\code{skipped}:}{names of objects in \code{file} that
 	  were not loaded}
-	}
-      }
     }
+  }
 }
 \author{Tony Plate <tplate@acm.org>}
 \seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }

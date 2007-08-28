@@ -141,35 +141,34 @@ of the \code{attach()} function and search path in R.  So, instead the
 \code{trackObjs} package says that a tracking environment is "linked" to
 the tracked environment.
 
-  \itemize{
-    \item{track}{The \code{trackObjs} \emph{tracks} variables, by
+  \describe{
+    \item{track:}{The \code{trackObjs} \emph{tracks} variables, by
       setting up a one-to-one relationship between R objects and files
       on disks so that when an object in R is modified, the file on disk
       is automatically updated.}
-    \item{tracked environment}{A \emph{tracked} environment contains
+    \item{tracked environment:}{A \emph{tracked} environment contains
       user variables and is usually on the search path.}
-    \item{tracked object}{A \emph{tracked} object (in a tracked
+    \item{tracked object:}{A \emph{tracked} object (in a tracked
       environment) that has an active binding
       so that when it is modified, the corresponding file on disk is
       also modified.}
-    \item{untracked object}{An \emph{untracked} object in a tracked
+    \item{untracked object:}{An \emph{untracked} object in a tracked
       environment is an ordinary object that is not tracked and has no
       corresponding file.}
-    \item{tracking environment}{A \emph{tracking} environment is a
+    \item{tracking environment:}{A \emph{tracking} environment is a
       special environment used by the \code{trackObjs} package to track
       objects in the \emph{tracked} environment}
-    \item{linked}{A tracking environment is \emph{linked} to a tracked
+    \item{linked:}{A tracking environment is \emph{linked} to a tracked
       environment (by the \code{trackingEnv} attribute on the tracked
       environment, which \emph{points} to the tracking environment.)}
-    \item{start tracking, stop tracking}{Tracking is \emph{started} by
+    \item{start tracking, stop tracking:}{Tracking is \emph{started} by
       creating a tracking environment, linking it to the tracked
       environment, and setting up bindings for tracked objects.}
-    }
-    \item{tracking database}{A \emph{tracking} database is the
+    \item{tracking database:}{A \emph{tracking} database is the
       collection of files and directories that stores the tracking information.}
-    \item{active tracking database}{A \emph{tracking} database that is
+    \item{active tracking database:}{A \emph{tracking} database that is
       currently linked to an environment in a running R session.}
-
+    }
 }
 
 \section{Untrackable variables}{

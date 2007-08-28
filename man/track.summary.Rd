@@ -24,9 +24,10 @@ track.summary(expr, pos = 1, envir = as.environment(pos), list = NULL, pattern =
   \item{pattern}{ A regular expression specifying variable names to summarize }
   \item{glob}{ A regular expression specifying variable names to summarize }
   \item{times}{ An integer 0..3 specifying how many time columns to
-    return (modify, create, access) }
+    return (in order of: modify, create, access) }
   \item{access}{  An integer 0..3 specifying how many access-count
-    columns to return}
+    columns to return for each writes and accesses (0=none, 1=total,
+    2=prior and current session, 3=prior, current session and total)}
   \item{size}{A logical: include the \code{size} column?  (This is
     system dependent, so make it easy to exclude)}
 }
@@ -39,31 +40,36 @@ track.summary(expr, pos = 1, envir = as.environment(pos), list = NULL, pattern =
   objects.  This function does not create any output itself -- the
   auto-printing of the returned value is the visible output.
   The data frame has one row for each
-  object (rownames are the object names) and the following columns:
-  \itemize{
-    \item{class}{: (character) from \code{class()} (if \code{class(obj)} 
+  object (rownames are the object names) and some of the following columns:
+
+    \item{class:}{(character) from \code{class()} (if \code{class(obj)} 
       has more than one component, all components are appended separated
       by commas, if \code{class(obj)} returns a zero-length result, the
     value is \code{"?"})}
-    \item{mode}{: (character) from \code{mode()}}
-    \item{extent}{: (character) from \code{dim()} or \code{length()},
+    \item{mode:}{(character) from \code{mode()}}
+    \item{extent:}{(character) from \code{dim()} or \code{length()},
     with double brackets if the object is a list (will contain
     \code{"(error)"} if \code{dim(obj)} causes an error)}
-    \item{length}{: (integer) from \code{length()} (will be
+    \item{length:}{(integer) from \code{length()} (will be
     \code{NA} if \code{length(obj)} causes an error)}
-    \item{size}{: (integer) from \code{object.size()}}
-    \item{modified}{: most recent modification time}
-    \item{created}{: time object created}
-    \item{read}{: most recent modification time}
-    \item{A}{: (logical) Accuracy of times: \code{TRUE} if object summary
+    \item{size:}{(integer) from \code{object.size()}}
+    \item{modified:}{most recent modification time}
+    \item{created:}{time object created}
+    \item{read:}{most recent modification time}
+    \item{A:}{(logical) Accuracy of times: \code{TRUE} if object summary
     has been maintained since object was first tracked; \code{FALSE} if
     the object summary was lost at some point and then recreated}
-    \item{ES}{: (integer) sessions alive}
-    \item{SR}{: (integer) num reads this session}
-    \item{SW}{: (integer) num writes this session}
-    \item{PR}{: (integer) total reads prior to this session}
-    \item{PW}{: (integer) total writes prior to this session}
-  }
+    \item{ES:}{(integer) sessions alive}
+    \item{SR:}{(integer) num reads this session}
+    \item{SW:}{(integer) num writes this session}
+    \item{PR:}{(integer) total reads prior to this session}
+    \item{PW:}{(integer) total writes prior to this session}
+    \item{TR:}{(integer) total reads}
+    \item{TW:}{(integer) total writes}
+
+  Which columns are present depends on the arguments \code{times},
+  \code{access}, and \code{size}.
+  
   The reason for the \code{class} column containing all classes of the
   object separated by commas is that extracting the most informative
   class label is not simple, for example, the class of an object

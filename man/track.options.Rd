@@ -34,19 +34,19 @@ track.options(..., pos = 1, envir = as.environment(pos), save = FALSE,
 }
 \details{
   Valid option names and values are as follows:
-  \itemize{
-    \item{summaryTimes}{logical, or integer value 0,1,2,3}
-    \item{summaryAccess}{logical, or integer value 0,1,2,3,4}
-    \item{cache}{logical (default TRUE) (keep written objects in memory?)}
-    \item{writeToDisk}{logical (default TRUE) (always write changed objects to disk?)}
-    \item{useDisk}{logical (default TRUE) if FALSE, don't write anything
+  \describe{
+    \item{summaryTimes:}{logical, or integer value 0,1,2,3}
+    \item{summaryAccess:}{logical, or integer value 0,1,2,3,4}
+    \item{cache:}{logical (default TRUE) (keep written objects in memory?)}
+    \item{writeToDisk:}{logical (default TRUE) (always write changed objects to disk?)}
+    \item{useDisk:}{logical (default TRUE) if FALSE, don't write anything
     -- not implemented yet}
-    \item{recordAccesses}{logical (default TRUE) if TRUE, record
+    \item{recordAccesses:}{logical (default TRUE) if TRUE, record
       counts and times for access ("get") operations on tracked variables}
-    \item{maintainSummary}{logical (default TRUE) if TRUE, record time & number of accesses}
-    \item{alwaysSaveSummary}{logical (default TRUE) if TRUE, always save
+    \item{maintainSummary:}{logical (default TRUE) if TRUE, record time & number of accesses}
+    \item{alwaysSaveSummary:}{logical (default TRUE) if TRUE, always save
     the summary on any change}
-    \item{RDataSuffix}{character (default \code{"rda"}) suffix to use for files
+    \item{RDataSuffix:}{character (default \code{"rda"}) suffix to use for files
       containing saved R objects}
 }
 
@@ -58,16 +58,16 @@ track.options(..., pos = 1, envir = as.environment(pos), save = FALSE,
   memory) and robustness in the face of machine or user error.  Some
   possible settings are:
 
-  \itemize{
-    \item{maximize robustness and speed}{: \code{cache=TRUE} and
+  \describe{
+    \item{maximize robustness and speed:}{ \code{cache=TRUE} and
       \code{writeToDisk=TRUE} (the default): always write an object to disk when it is
       changed, and keep a copy in memory, so that an object only needs
       to be read once}
-    \item{minimize memory usage and maximize robustness}{:
+    \item{minimize memory usage and maximize robustness:}{
       \code{writeToDisk=TRUE}, \code{cache=FALSE}: always write an
       object to disk when it is changed, and don't keep a copy in memory
       -- need to read from disk whenever the object is referred to}
-    \item{maximize speed}{: \code{writeToDisk=FALSE},
+    \item{maximize speed:}{ \code{writeToDisk=FALSE},
       \code{cache=TRUE}: don't write the object to disk - just keep
       a copy in memory after it is first accessed and only write it when
       \code{track.stop()} or

@@ -15,11 +15,17 @@
   tracked, and whether objects exist in memory or in files.
 }
 \usage{
-track.status(pos = 1, envir = as.environment(pos), expr, qexpr = NULL, list = NULL,
-        pattern = NULL, glob = NULL, file.status = TRUE, tracked = NA,
-        reserved=FALSE,
-        what = c("all", "tracked", "trackable", "untracked", "orphaned",
-                 "masked", "unsaved", "untrackable"))
+track.status(pos = 1, envir = as.environment(pos), expr,
+        qexpr = NULL, list = NULL, pattern = NULL, glob = NULL,
+        file.status = TRUE, tracked = NA, reserved=FALSE,
+        what = c("all", "tracked", "trackable", "untracked",
+                 "orphaned", "masked", "unsaved", "untrackable"))
+tracked(        pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+untracked(      pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+track.orphaned( pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+track.masked(   pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+untrackable(    pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+track.unsaved(  pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
 }
 
 \arguments{
@@ -53,21 +59,24 @@ track.status(pos = 1, envir = as.environment(pos), expr, qexpr = NULL, list = NU
   Tracking status depends on the relationship among three entities used
   for a tracked object:
   \itemize{
-  \item{the binding in \code{envir}}{ which should
-    be an active binding that refers to the tracking environment}
-  \item{the cached object}{in the tracking environment}
-  \item{the corresponding disk file}{in the tracking directory}
+  \item the binding in \code{envir} which should
+    be an active binding that refers to the tracking environment
+  \item the cached object in the tracking environment
+  \item the corresponding disk file in the tracking directory
   }
-
+  The arguments \code{expr}, \code{list}, \code{pattern}, and
+  \code{glob} all serve to restrict the set of variables considered.
 }
 \value{
-  \item{\code{track.status}{returns a \code{data.frame} if
-    \code{what=="all"}, or a character vector otherwise.}}
-  \item{\code{track.dir}{returns a single character string that is the
+  \item{track.status:}{returns a \code{data.frame} if
+    \code{what=="all"}, or a character vector otherwise.}
+  \item{track.dir:}{returns a single character string that is the
     full path to the directory where copies of objects are stored (the
-    "tracking directory").}}
-  \item{\code{tracked}{returns a \code{data.frame} if
-    \code{what=="all"}, or a character vector otherwise.}}
+    "tracking directory").}
+  \item{tracked, untracked, track.orphaned,
+    track.masked, untrackable, track.unsaved:}{all
+    return a character vector naming the variables with a particular
+    status.}
 }
 \author{ Tony Plate <tplate@acm.org> }
 \note{These functions check whether the binding in \code{envir} is an

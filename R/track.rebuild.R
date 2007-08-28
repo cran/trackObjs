@@ -118,14 +118,14 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         if (!file.create(tmpfile))
             stop("unable to create temporary test file '", tmpfilebase, "' in dir '", dir, "'")
         on.exit(unlink(tmpfile))
-        for (e in tracked.envs()) {
+        for (e.name in tracked.envs()) {
+            e <- as.environment(e.name)
             e.dir <- getTrackingDir(getTrackingEnv(e))
             if (file.exists(file.path(e.dir, tmpfilebase))) {
                 ## found the directory!
                 envir <- e
                 activeTracking <- TRUE
                 trackingEnv <- getTrackingEnv(envir)
-                browser()
             }
         }
         unlink(tmpfile)
@@ -784,7 +784,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         if (activeTracking) {
             if (verbose>1)
                 cat("Assigning '.trackingFileMap' and '.trackingSummary' in tracking environment.\n")
-            if (is(res <- try(assign(".trackingFileMap", newFileMap, envir=trackingEnv)), "try-error"))
+            if (is(assign.res <- try(assign(".trackingFileMap", newFileMap, envir=trackingEnv)), "try-error"))
                 warning("failed to assign '.trackingFileMap' in ", envname(trackingEnv),
                         " (error was '", formatMsg(res), "')")
             assign.res <- try(assign(".trackingSummary", newSummary, envir=trackingEnv))

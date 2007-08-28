@@ -70,13 +70,16 @@ Y        list      list   [[2]]      2 2001-01-01 09:00:04 2001-01-01 09:00:04 2
 abc character character     [1]      1 2001-01-01 09:00:09 2001-01-01 09:00:09 2001-01-01 09:00:14  3  1
 def      list      list   [[3]]      3 2001-01-01 09:00:10 2001-01-01 09:00:10 2001-01-01 09:00:10  0  1
 x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2001-01-01 09:00:02  0  1
-> # Rebuild the unlinked dir, and show the returned value
+> # Rebuild the active dir, and show the returned value
 > res <- track.rebuild(dir="tmp1", verbose=2, dry.run=FALSE)
-Rebuilding an inactive tracking database
+Rebuilding an active tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
+Found a fileMap in the environment and on disk
+Using tracking summary from tracking environment.
 Using tracking summary read from file.
 New file map has 0 newly constructed entries and uses 5 old entries
 New summary has 0 newly constructed entries and uses 0 recovered and 5 old entries
+Assigning '.trackingFileMap' and '.trackingSummary' in tracking environment.
 Writing file map to file.
 Saving object summary to file.
 > res$fileMap

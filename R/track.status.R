@@ -1,20 +1,20 @@
-tracked <- function(pos=1, envir=as.environment(pos), expr, list=NULL, pattern=NULL, glob=NULL)
-    track.status(envir=envir, qexpr=if (!missing(expr)) substitute(expr), list=list, pattern=pattern, glob=glob, file.status=FALSE, what="tracked")
+tracked <- function(pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+    track.status(envir=envir, list=list, pattern=pattern, glob=glob, file.status=FALSE, what="tracked")
 
-untracked <- function(pos=1, envir=as.environment(pos), expr, list=NULL, pattern=NULL, glob=NULL)
-    track.status(envir=envir, qexpr=if (!missing(expr)) substitute(expr), list=list, pattern=pattern, glob=glob, file.status=FALSE, what="untracked", tracked=FALSE)
+untracked <- function(pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+    track.status(envir=envir, list=list, pattern=pattern, glob=glob, file.status=FALSE, what="untracked", tracked=FALSE)
 
-track.orphaned <- function(pos=1, envir=as.environment(pos), expr, list=NULL, pattern=NULL, glob=NULL)
-    track.status(envir=envir, qexpr=if (!missing(expr)) substitute(expr), list=list, pattern=pattern, glob=glob, file.status=FALSE, what="orphaned", tracked=TRUE)
+track.orphaned <- function(pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+    track.status(envir=envir, list=list, pattern=pattern, glob=glob, file.status=FALSE, what="orphaned", tracked=TRUE)
 
-track.masked <- function(pos=1, envir=as.environment(pos), expr, list=NULL, pattern=NULL, glob=NULL)
-    track.status(envir=envir, qexpr=if (!missing(expr)) substitute(expr), list=list, pattern=pattern, glob=glob, file.status=FALSE, what="masked", tracked=TRUE)
+track.masked <- function(pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+    track.status(envir=envir, list=list, pattern=pattern, glob=glob, file.status=FALSE, what="masked", tracked=TRUE)
 
-untrackable <- function(pos=1, envir=as.environment(pos), expr, list=NULL, pattern=NULL, glob=NULL)
-    track.status(envir=envir, qexpr=if (!missing(expr)) substitute(expr), list=list, pattern=pattern, glob=glob, file.status=FALSE, what="untrackable", tracked=FALSE, reserved=TRUE)
+untrackable <- function(pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+    track.status(envir=envir, list=list, pattern=pattern, glob=glob, file.status=FALSE, what="untrackable", tracked=FALSE, reserved=TRUE)
 
-track.unsaved <- function(pos=1, envir=as.environment(pos), expr, list=NULL, pattern=NULL, glob=NULL)
-    track.status(envir=envir, qexpr=if (!missing(expr)) substitute(expr), list=list, pattern=pattern, glob=glob, file.status=FALSE, what="unsaved", tracked=TRUE)
+track.unsaved <- function(pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=NULL)
+    track.status(envir=envir, list=list, pattern=pattern, glob=glob, file.status=FALSE, what="unsaved", tracked=TRUE)
 
 track.status <- function(pos=1, envir=as.environment(pos), expr, qexpr=NULL, list=NULL,
                          pattern=NULL, glob=NULL, file.status=TRUE,

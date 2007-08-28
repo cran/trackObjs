@@ -7,36 +7,43 @@ Potential future features of the trackObjs package
 \description{
 
 Potential future features of the trackObjs package, in some vague order
-of priority or feasibility:
+of feasibility and priority:
 
-\itemize{
-  \item{better cleanup}{: provide an integrated quiting function that
+\describe{
+  \item{untracked variables in the summary:}{would this be useful?
+    wouldn't need to cache these, mark with an asterisk in a special
+    column?}
+  \item{better cleanup:}{ provide an integrated quiting function that
     saves all tracked vars and history before quitting (and maybe also
     saves untracked vars in an RData file)}
-  \item{smarter reading of filemap.txt}{: check the mod time on
+  \item{auto-trust in rebuild:}{when rebuilding an active tracking
+    environment, base decision whether to use summary row from file or
+    environment on which has more recent dates in it. (whole dataframe,
+    or row by row?)}
+  \item{smarter reading of filemap.txt:}{ check the mod time on
     filemap.txt when getting the filemap obj, and if the file on disk
     appears to have changed, reread it instead of just getting it from
     memory.  This would allow working together better with other
     sessions that are simultaneously using this tracking dir.  Don't know how much
     it would slow things down -- do some timings.  Note that to make
     this work in a fool-proof manner would require locks.}
-  \item{investigate double-get}{: doing subset-replacement (e.g.,
+  \item{investigate double-get:}{ doing subset-replacement (e.g.,
     \code{X[2] <- ...}) retrieves \code{X} twice
     (see example below)}
-  \item{readonly mode}{: to allow linking tracking dirs that might be
+  \item{readonly mode:}{ to allow linking tracking dirs that might be
     in use by other R processes -- would require not recording
     gets -- this would require adding a new env on the
     search path and tracking it}
-  \item{autoflush}{: automatic flushing of variables that haven't been used
+  \item{autoflush:}{ automatic flushing of variables that haven't been used
     frequently (triggered automaticall when memory runs low?) -- this
     is why the summary records fetches as well as writes}
-  \item{safer restart}{: check that we will be able to restart before
+  \item{safer restart:}{ check that we will be able to restart before
     doing the stop (check for masked variables or other potential clobber problems)}
-  \item{safe saves}{: write files in a safe way so that the original
+  \item{safe saves:}{ write files in a safe way so that the original
     file is not removed until the new file is written -- not sure if
     this is necessary, because objects are in memory, and can be
     rewritten if there is a failure}
-  \item{autotrack}{: automatically track new variables? (would require hooks in
+  \item{autotrack:}{ automatically track new variables? (would require hooks in
     base-R that get called when a new var is created)}
 }
 

@@ -15,7 +15,7 @@ track.start(dir, pos = 1, envir = as.environment(pos), create = TRUE,
         RDataSuffix=NULL)
 track.stop(pos = 1, envir = as.environment(pos), all=FALSE, stop.on.error=FALSE)
 env.is.tracked(pos = 1, envir = as.environment(pos))
-tracked.envs(envs=search())
+tracked.envs(envirs=search())
 track.restart(pos = 1, envir = as.environment(pos), forget.modified = FALSE)
 }
 
@@ -39,21 +39,21 @@ track.restart(pos = 1, envir = as.environment(pos), forget.modified = FALSE)
   \item{all}{If \code{TRUE}, all tracked environment are unlinked}
   \item{stop.on.error}{If \code{FALSE}, failures to unlink a tracking
     environment are ignored, though a warning message is printed}
-  \item{envs}{A list or vector of objects that can be interpreted as
+  \item{envirs}{A list or vector of objects that can be interpreted as
     environments by \code{as.environment}}
   \item{forget.modified}{ If \code{TRUE}, discard copies that are
     modified and in memory }
   \item{RDataSuffix}{The suffix to use for \code{RData} files.  This should not normally need to be specified.}
 }
 \details{
-  \itemize{
-    \item{\code{track.start}}{: start tracking \code{envir}.  If the
+  \describe{
+    \item{\code{track.start}:}{ start tracking \code{envir}.  If the
       tracking directory already exists, objects in it will be made
       accessible, otherwise it will be created (unless \code{create=FALSE}).}
-    \item{\code{track.stop}}{: stop tracking \code{envir}.  Tracked
+    \item{\code{track.stop}:}{ stop tracking \code{envir}.  Tracked
       variables will become unavailable (any unsaved values will be
       saved to files first.)}
-    \item{\code{track.restart}}{: Rescan the tracking dir, so that if anything has changed there,
+    \item{\code{track.restart}:}{ Rescan the tracking dir, so that if anything has changed there,
 the current variables on file will be used instead of any cached
 in memory.
 If we have some modified variables cached in memory but not saved
@@ -66,13 +66,13 @@ available.
 }
 }
 \value{
-  \itemize{
-    \item{\code{track.start}, \code{track.stop}, \code{track.restart}}{: all return \code{invisible(NULL)} (this
+    \item{track.start, track.stop, track.restart:}{all return \code{invisible(NULL)} (this
       may change if it becomes clear what useful return values would be)}
-    \item{\code{env.is.tracked}}{: returns \code{TRUE} or \code{FALSE}}
-    \item{\code{tracked.envs}}{: returns a logical vector of same length
-      as \code{envs} indicating whether each environment is tracked}
-    }
+    \item{env.is.tracked:}{returns \code{TRUE} or \code{FALSE}}
+    \item{tracked.envs:}{with no arguments, it returns the names of
+      tracked environment that are on the search list.  If given an
+      argument that is a vector of environments (or environment names),
+      it returns the subset of that vector that are tracked environments.}
 }
 \author{Tony Plate <tplate@acm.org>}
 \seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }
