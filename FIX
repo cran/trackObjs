@@ -1,0 +1,29 @@
+Integrating the different updates back together
+
+trackObjs: has RDataSuffix component for track.options
+trackObjs.0513: uses text-based filemap.txt instead of .trackingFileMap.rda
+
+TODO:
+
+DONE:
+Files trackObjs/R/track.rebuild.R and trackObjs.0513/R/track.rebuild.R differ
+Files trackObjs/R/track.options.R and trackObjs.0513/R/track.options.R differ
+Files trackObjs/R/track.R and trackObjs.0513/R/track.R differ
+Files trackObjs/R/track.reattach.R and trackObjs.0513/R/track.reattach.R differ
+Files trackObjs/R/track.status.R and trackObjs.0513/R/track.status.R differ
+Files trackObjs/R/track.manage.R and trackObjs.0513/R/track.manage.R differ
+Files trackObjs/tests/testObjStatus.Rout.save and trackObjs.0513/tests/testObjStatus.Rout.save differ
+Files trackObjs/man/track.rebuild.Rd and trackObjs.0513/man/track.rebuild.Rd differ
+Files trackObjs/man/track.options.Rd and trackObjs.0513/man/track.options.Rd differ
+Files trackObjs/man/trackObjs.Rd and trackObjs.0513/man/trackObjs.Rd differ
+Files trackObjs/man/track.manage.Rd and trackObjs.0513/man/track.manage.Rd differ
+Files trackObjs/man/track.design.Rd and trackObjs.0513/man/track.design.Rd differ
+Files trackObjs/man/track.future.Rd and trackObjs.0513/man/track.future.Rd differ
+Files trackObjs/DESCRIPTION and trackObjs.0513/DESCRIPTION differ
+
+NO DO:
+Only in trackObjs: FIX
+Files trackObjs/chm/track.design.html and trackObjs.0513/chm/track.design.html differ
+Files trackObjs/chm/track.future.html and trackObjs.0513/chm/track.future.html differ
+Files trackObjs/chm/trackObjs.chm and trackObjs.0513/chm/trackObjs.chm differ
+Files trackObjs/chm/trackObjs.html and trackObjs.0513/chm/trackObjs.html differ
