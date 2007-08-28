@@ -45,17 +45,17 @@ Here is a brief example of tracking some variables in the global environment:
 > track.start("tmp1")
 > x <- 123                  # Not yet tracked
 > track(x)                  # Variable 'x' is now tracked
-> track(y <- matrix(1:6, ncol=2)) # Variable 'y' is assigned a value and tracked
+> track(y <- matrix(1:6, ncol=2)) # 'y' is assigned & tracked
 > z1 <- list("a", "b", "c")
 > z2 <- Sys.time()
 > track(list=c("z1", "z2")) # Track a bunch of variables
-> track.summary()           # See a summary of the properties of tracked vars
-            class    mode extent length size            modified TA TW
-x         numeric numeric    [1]      1   48 2007-09-07 00:12:38  0  1
-y          matrix numeric  [3x2]      6  232 2007-09-07 00:12:38  0  1
-z1           list    list  [[3]]      3  360 2007-09-07 00:12:38  0  1
-z2 POSIXt,POSIXct numeric    [1]      1  312 2007-09-07 00:12:38  0  1
->   # (dim, length, modification time, etc.)
+> track.summary(size=F)     # See a summary of tracked vars
+            class    mode extent length            modified TA TW
+x         numeric numeric    [1]      1 2007-09-07 08:50:58  0  1
+y          matrix numeric  [3x2]      6 2007-09-07 08:50:58  0  1
+z1           list    list  [[3]]      3 2007-09-07 08:50:58  0  1
+z2 POSIXt,POSIXct numeric    [1]      1 2007-09-07 08:50:58  0  1
+> # (TA="total accesses", TW="total writes")
 > ls(all=TRUE)
 [1] "x"  "y"  "z1" "z2"
 > track.stop()              # Stop tracking
@@ -66,12 +66,12 @@ character(0)
 > track.start("tmp1") # Start using the tracking dir again
 > ls(all=TRUE)
 [1] "x"  "y"  "z1" "z2"
-> track.summary()
-            class    mode extent length size            modified TA TW
-x         numeric numeric    [1]      1   48 2007-09-07 00:12:38  0  1
-y          matrix numeric  [3x2]      6  232 2007-09-07 00:12:38  0  1
-z1           list    list  [[3]]      3  360 2007-09-07 00:12:38  0  1
-z2 POSIXt,POSIXct numeric    [1]      1  312 2007-09-07 00:12:38  0  1
+> track.summary(size=F)
+            class    mode extent length            modified TA TW
+x         numeric numeric    [1]      1 2007-09-07 08:50:58  0  1
+y          matrix numeric  [3x2]      6 2007-09-07 08:50:58  0  1
+z1           list    list  [[3]]      3 2007-09-07 08:50:58  0  1
+z2 POSIXt,POSIXct numeric    [1]      1 2007-09-07 08:50:58  0  1
 > z1
 [[1]]
 [1] "a"
@@ -91,8 +91,9 @@ z2 tracked FALSE       z2       TRUE  TRUE
 > track.stop()
 >
 > list.files("tmp1", all=TRUE)
-[1] "."                    ".."                   "filemap.txt"
-[4] ".trackingSummary.rda" "x.rda"                "y.rda"
+[1] "."                    ".."
+[3] "filemap.txt"          ".trackingSummary.rda"
+[5] "x.rda"                "y.rda"
 [7] "z1.rda"               "z2.rda"
 >
 }
