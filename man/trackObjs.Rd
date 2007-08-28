@@ -18,6 +18,11 @@ Each object is stored in a separate RData file using the standard
 format as used by \code{save()}, so that objects can be manually
 picked out of or added to the trackObjs database if needed.
 
+Tracking works by replacing a tracked variable by an 'activeBinding',
+which when accessed looks up information in an associated 'tracking
+environment' and reads or writes the corresponding RData file and/or
+gets or assigns the variable in the tracking environment.
+
 }
 \details{
 There are three main reasons to use the \code{trackObjs} package:
@@ -72,24 +77,9 @@ x         numeric numeric    [1]      1 2007-09-07 08:50:58  0  1
 y          matrix numeric  [3x2]      6 2007-09-07 08:50:58  0  1
 z1           list    list  [[3]]      3 2007-09-07 08:50:58  0  1
 z2 POSIXt,POSIXct numeric    [1]      1 2007-09-07 08:50:58  0  1
-> z1
-[[1]]
-[1] "a"
-
-[[2]]
-[1] "b"
-
-[[3]]
-[1] "c"
-
-> track.status()
-    Status InMem FileBase FileExists Saved
-x  tracked FALSE        x       TRUE  TRUE
-y  tracked FALSE        y       TRUE  TRUE
-z1 tracked FALSE       z1       TRUE  TRUE
-z2 tracked FALSE       z2       TRUE  TRUE
 > track.stop()
 >
+> # the files in the tracking directory:
 > list.files("tmp1", all=TRUE)
 [1] "."                    ".."
 [3] "filemap.txt"          ".trackingSummary.rda"
@@ -100,43 +90,71 @@ z2 tracked FALSE       z2       TRUE  TRUE
 
 There are several points to note:
 \itemize{
-  \item Vars must be explicitly \code{track()}'ed - newly created objects
-  are not tracked.  (This is not a "feature", but the package author knows no way of
-  automatically tracking newly created objects.)
+  \item The global environment is the default environment for tracking
+  -- it is possible to track variables in other environments, but that
+  environment must be supplied as an argument to the track functions.
+  \item Vars must be explicitly \code{track()}ed - newly created objects
+  are not tracked.  (This is not a "feature", but there is currently no way of
+  automatically tracking newly created objects -- this is on the
+  wishlist.)  Thus, it is possible
+  for variables in a tracked environment to either tracked or untracked.
   \item When tracking is stopped, all
-  tracked variables are saved on disk and will be no longer accessible.
-  \item The objects are stored on disk in files in the 
-  tracking dir, and are stored in the
+  tracked variables are saved on disk and will be no longer accessible
+  until tracking is started again.
+  \item The objects are stored each in their own file in the 
+  tracking dir, in the
   format used by \code{save()}/\code{load()} (RData files).
 }
 }
 
 \section{List of basic functions and common calling patterns}{
+
+  Six functions cover the majority of common usage of the trackObjs package:
   
 \itemize{
-  \item \code{\link[track.start]{track.start}(dir=...)}: start tracking,
-  using the supplied directory
+  \item \code{\link[track.start]{track.start}(dir=...)}: start tracking
+  the global environment, with files saved in \code{dir}
   \item \code{\link[track.start]{track.stop}()}: stop tracking
   (any unsaved tracked variables are saved to disk and all tracked variables
   become unavailable until tracking starts again)
-  \item \code{\link[track]{track}(x)}: start tracking 'x'
-  \item \code{\link[track]{track}(var <- value)}: start tracking 'var'
-  \item \code{\link[track]{track}(list=c('x', 'y'))}: start tracking a
-  list of variables
+  \item \code{\link[track]{track}(x)}: start tracking \code{x} -
+  \code{x} in the global environment is replaced by an active binding
+  and \code{x} is saved in its corresponding file in the tracking
+  directory and, if caching is on, in the tracking environment
+  \item \code{\link[track]{track}(x <- value)}: start tracking \code{x}
+  \item \code{\link[track]{track}(list=c('x', 'y'))}: start tracking
+  specified variables
   \item \code{\link[track]{track}(all=TRUE)}: start tracking all
-  untracked variables
-  \item \code{\link[untrack]{untrack}(x)}: stop tracking variable 'x' -
-  the R object is left accessible in the environment
-  \item \code{\link[untrack]{untrack}(all=TRUE)}: stop tracking all variables
-  \item \code{\link[untrack]{untrack}(list=...)}: stop tracking a list
-  of variables
-  \item \code{\link[track.summary]{track.summary}()}: return a data
-  frame containing a summary of the basic characteristics of tracked
-  variables: name, class, extent, and creation, modification and access times.
+  untracked variables in the global environment
+  \item \code{\link[untrack]{untrack}(x)}: stop tracking variable \code{x} -
+  the R object \code{x} is put back as an ordinary object in the global environment
+  \item \code{\link[untrack]{untrack}(all=TRUE)}: stop tracking all
+  variables in the global environment (but tracking is still set up)
+  \item \code{\link[untrack]{untrack}(list=...)}: stop tracking specified variables
+  \item \code{\link[track.summary]{track.summary}()}: print a summary of
+  the basic characteristics of tracked variables: name, class, extent,
+  and creation, modification and access times.
+  \item \code{\link[track.remove]{track.remove}(x)}: completely remove all
+  traces of \code{x} from the global environment, tracking environment
+  and tracking directory.   Note that if variable \code{x} in the global
+  environment is tracked,
+  \code{remove(x)} will make \code{x} an "orphaned" variable:
+  \code{remove(x)} will just remove the active binding from the global
+  environment, and leave \code{x} in the tracked environment and on
+  file, and \code{x} will reappear after restarting tracking.
 }
 }
 
 \section{Complete list of functions and common calling patterns}{
+
+The \code{trackObjs} package provides many additional functions for
+controlling how tracking is performed (e.g., whether or not tracked variables
+are cached in memory), examining the state of tracking (show which
+variables are tracked, untracked, orphaned, masked, etc.) and repairing
+tracking environments and databases that have become inconsistent or incomplete
+(this may result from resource limitiations, e.g., being unable to
+write a save file due to lack of disk space, or from manual tinkering,
+e.g., dropping a new save file into a tracking directory.)
   
 The functions that can be used to set up and take down tracking are:
 \itemize{
