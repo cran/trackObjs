@@ -761,6 +761,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                             setTrackedVar(x, v, envir)
                     }, list(x=objName, envir=trackingEnv))
                     mode(f) <- "function"
+                    environment(f) <- emptyenv()
                     makeActiveBinding(objName, env=envir, fun=f)
                 }
             }

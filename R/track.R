@@ -237,15 +237,16 @@ track.start <- function(dir, pos=1, envir=as.environment(pos),
             fileMap <- readFileMapFile(trackingEnv, dataDir, TRUE)
             alreadyExists <- logical(0)
             if (length(fileMap))
-                alreadyExists <- sapply(fileMap, exists, envir=envir, inherits=FALSE)
+                alreadyExists <- sapply(names(fileMap), exists, envir=envir, inherits=FALSE)
             alreadyExists <- names(fileMap)[alreadyExists]
             if (length(alreadyExists)) {
                 if (clobber=="no") {
                     assign(".trackAlreadyExists", alreadyExists, envir=envir)
-                    stop("cannot start tracking to dir \"", dir, "\" because ",
-                         length(alreadyExists), " vars it has exist in ", envname(envir),
-                         ", e.g.: ", paste("'", alreadyExists[min(3,length(alreadyExists))], "'", sep="", collapse=", "),
-                         if (length(alreadyExists)>3) ", ...")
+                    stop("cannot start tracking to dir \"", dir, "\" because it contains ",
+                         length(alreadyExists), " vars that currently exist in ", envname(envir),
+                         ", e.g.: ", paste("'", alreadyExists[seq(len=min(3,length(alreadyExists)))], "'", sep="", collapse=", "),
+                         if (length(alreadyExists)>3) ", ...",
+                         " (try track.start(..., clobber='files') or track.start(..., clobber='vars') to clobber one or the other")
                 } else if (clobber=="files") {
                     file.names <- fileMap[match(alreadyExists, names(fileMap))]
                     file.remove(file.path(dataDir, paste(file.names, opt$RDataSuffix, sep=".")))
@@ -302,6 +303,7 @@ track.start <- function(dir, pos=1, envir=as.environment(pos),
                 setTrackedVar(x, v, envir)
         }, list(x=objname, envir=trackingEnv))
         mode(f) <- "function"
+        environment(f) <- parent.env(environment(f))
         makeActiveBinding(objname, env=envir, fun=f)
     }
     setTrackingEnv(trackedEnv=envir, trackingEnv=trackingEnv)
@@ -325,6 +327,7 @@ getDataDir <- function(trackingDir) {
 }
 
 tracked.envs <- function(envirs=search()) {
+    ## returns environment names, not environments!
     i <- sapply(envirs, function(envir) env.is.tracked(envir=as.environment(envir)))
     envirs[i]
 }
@@ -386,6 +389,10 @@ track <- function(expr, pos=1, envir=as.environment(pos), list=NULL, pattern=NUL
             }
             objval <- get(objname, envir=envir, inherits=FALSE)
             remove(list=objname, envir=envir)
+            ## robustness danger point: can have objval in here, but
+            ## assigned in no environment -- might be better to remove
+            ## it only after setTrackedVar() has succeeded.  However,
+            ## setTrackedVar cannot work if it is still here...
         }
         ## robustness: what to do if the assign inside setTrackedVar fails?
         setTrackedVar(objname, objval, trackingEnv, opt)
@@ -396,6 +403,18 @@ track <- function(expr, pos=1, envir=as.environment(pos), list=NULL, pattern=NUL
                 setTrackedVar(x, v, envir)
         }, list(x=objname, envir=trackingEnv))
         mode(f) <- "function"
+        ## Need to replace the environment of f, otherwise it is this
+        ## function, which can contain a copy of objval, which can
+        ## use up lots of memory!
+        ## Need to be careful with the choice of env to set here:
+        ##   * emptyenv() doesn't work because then the binding can't find
+        ##     any defns
+        ##   * baseenv() doesn't work because then the function in the
+        ##     binding can't find functions from trackObjs
+        ##   * globalenv() doesn't work because the function in the
+        ##     binding can't find non-exported functions from trackObjs
+        ##   * parent.env(environment(f)) works!
+        environment(f) <- parent.env(environment(f))
         makeActiveBinding(objname, env=envir, fun=f)
     }
     return(invisible(list))
@@ -609,12 +628,12 @@ track.dir <- function(pos=1, envir=as.environment(pos), data=FALSE) {
 track.stop <- function(pos=1, envir=as.environment(pos), all=FALSE, stop.on.error=FALSE) {
     ## Detach a tracking env -- should call track.flush first.
     if (all) {
-        envs <- tracked.envs()
-        for (env in envs)
+        env.names <- tracked.envs()
+        for (e.name in env.names)
             if (stop.on.error)
-                track.stop(envir=env)
+                track.stop(envir=as.environment(e.name))
             else
-                try(track.stop(envir=env))
+                try(track.stop(envir=as.environment(e.name)))
     } else {
         tracked.vars <- tracked(envir=envir)
         track.flush(envir=envir)
@@ -899,6 +918,7 @@ track.load <- function(files, pos=1, envir=as.environment(pos), list=NULL, patte
                     setTrackedVar(x, v, envir)
             }, list(x=objName, envir=trackingEnv))
             mode(f) <- "function"
+            environment(f) <- parent.env(environment(f))
             makeActiveBinding(objName, env=envir, fun=f)
         }
         all.loaded <- c(all.loaded, list)

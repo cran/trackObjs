@@ -11,7 +11,7 @@ track.restart <- function(pos=1, envir=as.environment(pos), forget.modified=FALS
     unsaved <- track.unsaved(envir=envir)
     if (!forget.modified && length(unsaved))
         stop("env ", envname(envir), " has unsaved variables: ",
-             paste("'", unsaved[min(3, length(unsaved))], "'", sep="", collapse=", "),
+             paste("'", unsaved[seq(len=min(3, length(unsaved)))], "'", sep="", collapse=", "),
              if (length(unsaved) > 3) " ...", " (supply forget.modified=TRUE to lose these changes)")
     if (length(unsaved))
         track.forget(list=unsaved, envir=envir)

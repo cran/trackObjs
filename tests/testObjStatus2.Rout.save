@@ -18,10 +18,11 @@ NULL
 > .trackingEnv <- "I simply can't be tracked!"
 > track(uncoop)
 Warning message:
-cannot track 'uncoop' because it is an active binding in: track(uncoop) 
+In track(uncoop) : cannot track 'uncoop' because it is an active binding
 > track(.trackingFileMap)
 Warning message:
-cannot track 1 variables (these are used in implementing tracking or are illegal variable names): '.trackingFileMap' in: track(.trackingFileMap) 
+In track(.trackingFileMap) :
+  cannot track 1 variables (these are used in implementing tracking or are illegal variable names): '.trackingFileMap'
 > track(x1 <- 123)
 > track(x2 <- 456)
 > track(x3 <- 789)
@@ -226,8 +227,9 @@ $skipped
 [1] "y3" "y5"
 
 Warning message:
-skipping 2 variable(s) because these exist in <environment '.GlobalEnv'> and clobber=FALSE: 'y3''y5'
- in: track.load("tmpy.rda") 
+In track.load("tmpy.rda") :
+  skipping 2 variable(s) because these exist in <environment '.GlobalEnv'> and clobber=FALSE: 'y3''y5'
+
 > y3
 [1] "new value"
 > track.status()
@@ -252,8 +254,9 @@ $skipped
 character(0)
 
 Warning message:
-clobbering 3 existing variable(s) in <environment '.GlobalEnv'> and clobber=FALSE: 'y3''y4''y5'
- in: track.load("tmpy.rda", clobber = TRUE) 
+In track.load("tmpy.rda", clobber = TRUE) :
+  clobbering 3 existing variable(s) in <environment '.GlobalEnv'> and clobber=FALSE: 'y3''y4''y5'
+
 > y3
 [[1]]
 [1] 2

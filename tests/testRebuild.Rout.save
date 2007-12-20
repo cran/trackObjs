@@ -246,7 +246,7 @@ def    def.rda
 Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
 .x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_'
 Error in track.rebuild(dir = "tmp1", verbose = 2, use.file.times = FALSE,  : 
-	Cannot proceed further -- rerun with fix=TRUE
+  Cannot proceed further -- rerun with fix=TRUE
 > res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, dry.run=TRUE, fix=TRUE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
@@ -302,7 +302,7 @@ def    def.rda
 Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
 .x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_'
 Error in track.rebuild(dir = "tmp1", verbose = 2, use.file.times = FALSE,  : 
-	Cannot proceed further -- rerun with fix=TRUE
+  Cannot proceed further -- rerun with fix=TRUE
 > res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, fix=TRUE, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
@@ -591,7 +591,8 @@ x1.1   numeric   numeric     [1]      1 2001-01-01 12:00:29 2001-01-01 12:00:29 
 x2     numeric   numeric     [1]      1 2001-01-01 12:00:31 2001-01-01 12:00:31 2001-01-01 12:00:31  0  1
 x3     numeric   numeric     [1]      1 2001-01-01 12:00:32 2001-01-01 12:00:32 2001-01-01 12:00:32  0  1
 Warning message:
-some vars are in the summary but not tracked (info in summary may be wrong for the visible instances of these vars): 'Y' in: track.summary(time = 3, size = FALSE, access = 1) 
+In track.summary(time = 3, size = FALSE, access = 1) :
+  some vars are in the summary but not tracked (info in summary may be wrong for the visible instances of these vars): 'Y'
 > track.status()
         Status InMem FileBase FileExists Saved
 X      tracked FALSE       _3       TRUE  TRUE
