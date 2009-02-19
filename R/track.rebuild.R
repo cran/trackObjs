@@ -89,7 +89,8 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         }
         x
     }
-    wd <- getwd()
+    # replace backslash with forward slash because getAbsolutePath() always returns forward slashes
+    wd <- gsub("\\\\", "/", getwd())
     abbrevWD <- function(path) {
         # abbrevWD replaces wd (working directory) in the path by "."
         # This makes the diagnostic output more concise and portable

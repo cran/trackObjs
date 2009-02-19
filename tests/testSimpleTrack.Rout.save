@@ -6,8 +6,8 @@
 > invisible(Sys.setlocale("LC_COLLATE", "C"))
 > options(width=100)
 > trackObjs:::create.fake.Sys.time(0)
-> unlink("tmp1", recursive=TRUE)
-> track.start("tmp1")
+> unlink("tmp8", recursive=TRUE)
+> track.start("tmp8")
 > track(x <- 33)
 > track.status(tracked=TRUE)
    Status InMem FileBase FileExists Saved
@@ -69,5 +69,5 @@ X   array numeric [2x3x4]     24 2001-01-01 09:00:08 2001-01-01 09:00:03 2001-01
 Y    list    list   [[2]]      2 2001-01-01 09:00:14 2001-01-01 09:00:04 2001-01-01 09:00:12  2  3
 x numeric numeric     [1]      1 2001-01-01 09:00:10 2001-01-01 09:00:02 2001-01-01 09:00:02  0  2
 > track.stop()
-> unlink("tmp1", recursive=TRUE)
+> unlink("tmp8", recursive=TRUE)
 > 

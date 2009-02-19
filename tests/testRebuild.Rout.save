@@ -6,7 +6,7 @@
 > invisible(Sys.setlocale("LC_COLLATE", "C"))
 > options(width=120)
 > options(error=function() NULL)
-> unlink("tmp1", recursive=TRUE)
+> unlink("tmp7", recursive=TRUE)
 > 
 > #################################################
 > # Tests:
@@ -25,7 +25,7 @@
 > 
 > # Test (1) rebuild a complete unlinked directory (nothing to do)
 > trackObjs:::create.fake.Sys.time(0)
-> track.start("tmp1")
+> track.start("tmp7")
 > track(x <- 33)
 > track(X <- array(1:24, dim=2:4))
 > track(Y <- list(a=1:3,b=2))
@@ -42,7 +42,7 @@ def      list      list   [[3]]      3 2001-01-01 09:00:10 2001-01-01 09:00:10 2
 x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2001-01-01 09:00:02  0  1
 > track.stop()
 > # Rebuild the unlinked dir, and show the returned value
-> res <- track.rebuild(dir="tmp1", verbose=2, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Using tracking summary read from file.
@@ -62,7 +62,7 @@ def      list      list   [[3]]      3 2001-01-01 09:00:10 2001-01-01 09:00:10 2
 x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2001-01-01 09:00:02 1  1  0  1  0  0
 > 
 > # Test (2) rebuild a complete active directory (nothing to do)
-> track.start("tmp1")
+> track.start("tmp7")
 > track.summary(time=3, size=FALSE, access=1) # omit the 'size' column: it varies by machine
         class      mode  extent length            modified             created            accessed TA TW
 X       array   numeric [2x3x4]     24 2001-01-01 09:00:08 2001-01-01 09:00:03 2001-01-01 09:00:06  2  3
@@ -71,7 +71,7 @@ abc character character     [1]      1 2001-01-01 09:00:09 2001-01-01 09:00:09 2
 def      list      list   [[3]]      3 2001-01-01 09:00:10 2001-01-01 09:00:10 2001-01-01 09:00:10  0  1
 x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2001-01-01 09:00:02  0  1
 > # Rebuild the active dir, and show the returned value
-> res <- track.rebuild(dir="tmp1", verbose=2, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, dry.run=FALSE)
 Rebuilding an active tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Found a fileMap in the environment and on disk
@@ -95,19 +95,19 @@ x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2
 > track.stop()
 > 
 > # Test (3) rebuild a unlinked directory with filemap gone
-> unlink("tmp1/filemap.txt")
+> unlink("tmp7/filemap.txt")
 > trackObjs:::create.fake.Sys.time(3600)
-> res <- track.rebuild(dir="tmp1", verbose=2, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
-File map file ('./tmp1/filemap.txt') does not exist; continuing...
+File map file ('./tmp7/filemap.txt') does not exist; continuing...
 Using tracking summary read from file.
 Some data files are not in the file map: '_1.rda', '_2.rda', 'abc.rda', 'def.rda', 'x.rda'
-Loading file './tmp1/_1.rda' for unknown object ... loaded 'X'
-Loading file './tmp1/_2.rda' for unknown object ... loaded 'Y'
-Loading file './tmp1/abc.rda' for unknown object ... loaded 'abc'
-Loading file './tmp1/def.rda' for unknown object ... loaded 'def'
-Loading file './tmp1/x.rda' for unknown object ... loaded 'x'
+Loading file './tmp7/_1.rda' for unknown object ... loaded 'X'
+Loading file './tmp7/_2.rda' for unknown object ... loaded 'Y'
+Loading file './tmp7/abc.rda' for unknown object ... loaded 'abc'
+Loading file './tmp7/def.rda' for unknown object ... loaded 'def'
+Loading file './tmp7/x.rda' for unknown object ... loaded 'x'
 New file map has 5 newly constructed entries and uses 0 old entries
 New summary has 0 newly constructed entries and uses 5 recovered and 0 old entries
 Writing file map to file.
@@ -122,7 +122,7 @@ Y        list      list   [[2]]      2 2001-01-01 09:00:04 2001-01-01 09:00:04 2
 abc character character     [1]      1 2001-01-01 09:00:09 2001-01-01 09:00:09 2001-01-01 09:00:14 1  2  0  0  3  1
 def      list      list   [[3]]      3 2001-01-01 09:00:10 2001-01-01 09:00:10 2001-01-01 09:00:10 1  2  0  0  0  1
 x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2001-01-01 09:00:02 1  2  0  0  0  1
-> track.start("tmp1")
+> track.start("tmp7")
 > track.summary(time=3, size=FALSE, access=1)
         class      mode  extent length            modified             created            accessed TA TW
 X       array   numeric [2x3x4]     24 2001-01-01 09:00:08 2001-01-01 09:00:03 2001-01-01 09:00:06  2  3
@@ -160,18 +160,18 @@ z     tracked FALSE        z       TRUE  TRUE
 > 
 > # Test (4) rebuild an unlinked directory with the filemap & summary missing entries
 > # First delete entries 2 & 3 from the filemap
-> filemap <- readLines("tmp1/filemap.txt", -1)
-> cat(paste(filemap[-(2:3)], "\n", sep=""), sep="", file="tmp1/filemap.txt")
-> readLines("tmp1/filemap.txt", -1)
+> filemap <- readLines("tmp7/filemap.txt", -1)
+> cat(paste(filemap[-(2:3)], "\n", sep=""), sep="", file="tmp7/filemap.txt")
+> readLines("tmp7/filemap.txt", -1)
 [1] "_1:X"    "def:def" "x:x"     "z:z"    
 > # And delete entries 3 & 4 from the summary
-> load("tmp1/.trackingSummary.rda")
+> load("tmp7/.trackingSummary.rda")
 > .trackingSummary <- .trackingSummary[-(3:4),]
-> save(".trackingSummary", file="tmp1/.trackingSummary.rda")
+> save(".trackingSummary", file="tmp7/.trackingSummary.rda")
 > remove(list=c("filemap", ".trackingSummary"))
 > # Put the 'time' forward another hour to make new times clearly visible
 > trackObjs:::create.fake.Sys.time(2*3600)
-> res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, use.file.times=FALSE, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Using tracking summary read from file.
@@ -179,9 +179,9 @@ Some data files are not in the file map: '_2.rda', 'abc.rda'
 Some objects in the file map are not in the summary:
 Object File   
 def    def.rda
-Loading file './tmp1/_2.rda' for unknown object ... loaded 'Y'
-Loading file './tmp1/abc.rda' for unknown object ... loaded 'abc'
-Loading file './tmp1/def.rda' for object 'def' ... loaded 'def'
+Loading file './tmp7/_2.rda' for unknown object ... loaded 'Y'
+Loading file './tmp7/abc.rda' for unknown object ... loaded 'abc'
+Loading file './tmp7/def.rda' for object 'def' ... loaded 'def'
 New file map has 2 newly constructed entries and uses 4 old entries
 New summary has 2 newly constructed entries and uses 1 recovered and 3 old entries
 Writing file map to file.
@@ -197,7 +197,7 @@ abc character character     [1]      1 2001-01-01 11:00:03 2001-01-01 11:00:03 2
 def      list      list   [[3]]      3 2001-01-01 11:00:04 2001-01-01 11:00:04 2001-01-01 11:00:04 1  1  0  1  0  0
 x     numeric   numeric     [1]      1 2001-01-01 09:00:02 2001-01-01 09:00:02 2001-01-01 09:00:02 1  3  0  0  0  1
 z     numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 2001-01-01 10:00:08 1  1  0  1  0  0
-> track.start("tmp1")
+> track.start("tmp7")
 > track.summary(time=3, size=FALSE, access=1)
         class      mode  extent length            modified             created            accessed TA TW
 X       array   numeric [2x3x4]     24 2001-01-01 09:00:08 2001-01-01 09:00:03 2001-01-01 09:00:06  2  3
@@ -209,15 +209,15 @@ z     numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 2
 > track.stop()
 > 
 > # Test (5) rebuild an unlinked directory with the filemap & summary missing entries, & new .rda files
-> filemap <- readLines("tmp1/filemap.txt", -1)
-> cat(paste(filemap[-(2:3)], "\n", sep=""), sep="", file="tmp1/filemap.txt")
-> readLines("tmp1/filemap.txt", -1)
+> filemap <- readLines("tmp7/filemap.txt", -1)
+> cat(paste(filemap[-(2:3)], "\n", sep=""), sep="", file="tmp7/filemap.txt")
+> readLines("tmp7/filemap.txt", -1)
 [1] "_1:X"    "def:def" "x:x"     "z:z"    
 > # And delete entries 3 & 4 from the summary
-> load("tmp1/.trackingSummary.rda")
+> load("tmp7/.trackingSummary.rda")
 > .trackingSummary <- .trackingSummary[-(3:4),]
-> save(".trackingSummary", file="tmp1/.trackingSummary.rda")
-> # And put some extra files in tmp1
+> save(".trackingSummary", file="tmp7/.trackingSummary.rda")
+> # And put some extra files in tmp7
 > x1 <- 1
 > x2 <- 2
 > x1.1 <- 3
@@ -225,17 +225,17 @@ z     numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 2
 > X4 <- 5
 > X5 <- 6
 > X6 <- 7
-> save("x1", file="tmp1/x1.rda")
-> save("x2", file="tmp1/x2.rda")
-> save("x1.1", file="tmp1/x1.1.rda")
-> save("x3", file="tmp1/x4.rda")
-> save("X4", file="tmp1/xx4.rda")
-> save("X5", file="tmp1/.x5.rda")
-> save("X6", file="tmp1/_6.rda")
+> save("x1", file="tmp7/x1.rda")
+> save("x2", file="tmp7/x2.rda")
+> save("x1.1", file="tmp7/x1.1.rda")
+> save("x3", file="tmp7/x4.rda")
+> save("X4", file="tmp7/xx4.rda")
+> save("X5", file="tmp7/.x5.rda")
+> save("X6", file="tmp7/_6.rda")
 > remove(list=c("filemap", ".trackingSummary", "x1", "x2", "x1.1", "x3", "X4", "X5", "X6"))
 > # Put the 'time' forward another hour to make new times clearly visible
 > trackObjs:::create.fake.Sys.time(3*3600)
-> res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, dry.run=TRUE, fix=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, use.file.times=FALSE, dry.run=TRUE, fix=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Using tracking summary read from file.
@@ -243,11 +243,11 @@ Some data files are not in the file map: '.x5.rda', '_2.rda', '_6.rda', 'abc.rda
 Some objects in the file map are not in the summary:
 Object File   
 def    def.rda
-Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
+Loading file './tmp7/.x5.rda' for unknown object ... loaded 'X5'
 .x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_'
-Error in track.rebuild(dir = "tmp1", verbose = 2, use.file.times = FALSE,  : 
+Error in track.rebuild(dir = "tmp7", verbose = 2, use.file.times = FALSE,  : 
   Cannot proceed further -- rerun with fix=TRUE
-> res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, dry.run=TRUE, fix=TRUE)
+> res <- track.rebuild(dir="tmp7", verbose=2, use.file.times=FALSE, dry.run=TRUE, fix=TRUE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Using tracking summary read from file.
@@ -255,22 +255,22 @@ Some data files are not in the file map: '.x5.rda', '_2.rda', '_6.rda', 'abc.rda
 Some objects in the file map are not in the summary:
 Object File   
 def    def.rda
-Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
-.x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_', would move to ./tmp1/quarantine and rewrite the object
-Would save object 'X5' to './tmp1/_3.rda'
-Loading file './tmp1/_2.rda' for unknown object ... loaded 'Y'
-Loading file './tmp1/_6.rda' for unknown object ... loaded 'X6'
-Loading file './tmp1/abc.rda' for unknown object ... loaded 'abc'
-Loading file './tmp1/x1.1.rda' for unknown object ... loaded 'x1.1'
-Loading file './tmp1/x1.rda' for unknown object ... loaded 'x1'
-Loading file './tmp1/x2.rda' for unknown object ... loaded 'x2'
-Loading file './tmp1/x4.rda' for unknown object ... loaded 'x3'
-x4.rda cannot be used as is because the file has a 'simple' name different to the object name, would move to ./tmp1/quarantine and rewrite the object
-Would save object 'x3' to './tmp1/x3.rda'
-Loading file './tmp1/xx4.rda' for unknown object ... loaded 'X4'
-xx4.rda cannot be used as is because the file has a 'simple' name different to the object name, would move to ./tmp1/quarantine and rewrite the object
-Would save object 'X4' to './tmp1/_4.rda'
-Loading file './tmp1/def.rda' for object 'def' ... loaded 'def'
+Loading file './tmp7/.x5.rda' for unknown object ... loaded 'X5'
+.x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_', would move to ./tmp7/quarantine and rewrite the object
+Would save object 'X5' to './tmp7/_3.rda'
+Loading file './tmp7/_2.rda' for unknown object ... loaded 'Y'
+Loading file './tmp7/_6.rda' for unknown object ... loaded 'X6'
+Loading file './tmp7/abc.rda' for unknown object ... loaded 'abc'
+Loading file './tmp7/x1.1.rda' for unknown object ... loaded 'x1.1'
+Loading file './tmp7/x1.rda' for unknown object ... loaded 'x1'
+Loading file './tmp7/x2.rda' for unknown object ... loaded 'x2'
+Loading file './tmp7/x4.rda' for unknown object ... loaded 'x3'
+x4.rda cannot be used as is because the file has a 'simple' name different to the object name, would move to ./tmp7/quarantine and rewrite the object
+Would save object 'x3' to './tmp7/x3.rda'
+Loading file './tmp7/xx4.rda' for unknown object ... loaded 'X4'
+xx4.rda cannot be used as is because the file has a 'simple' name different to the object name, would move to ./tmp7/quarantine and rewrite the object
+Would save object 'X4' to './tmp7/_4.rda'
+Loading file './tmp7/def.rda' for object 'def' ... loaded 'def'
 New file map has 9 newly constructed entries and uses 4 old entries
 New summary has 9 newly constructed entries and uses 1 recovered and 3 old entries
 > res$fileMap
@@ -291,7 +291,7 @@ x1.1   numeric   numeric     [1]      1 2001-01-01 12:00:07 2001-01-01 12:00:07 
 x2     numeric   numeric     [1]      1 2001-01-01 12:00:09 2001-01-01 12:00:09 2001-01-01 12:00:09 1  1  0  1  0  0
 x3     numeric   numeric     [1]      1 2001-01-01 12:00:10 2001-01-01 12:00:10 2001-01-01 12:00:10 1  1  0  1  0  0
 z      numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 2001-01-01 10:00:08 1  2  0  0  0  1
-> res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, use.file.times=FALSE, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Using tracking summary read from file.
@@ -299,11 +299,11 @@ Some data files are not in the file map: '.x5.rda', '_2.rda', '_6.rda', 'abc.rda
 Some objects in the file map are not in the summary:
 Object File   
 def    def.rda
-Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
+Loading file './tmp7/.x5.rda' for unknown object ... loaded 'X5'
 .x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_'
-Error in track.rebuild(dir = "tmp1", verbose = 2, use.file.times = FALSE,  : 
+Error in track.rebuild(dir = "tmp7", verbose = 2, use.file.times = FALSE,  : 
   Cannot proceed further -- rerun with fix=TRUE
-> res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, fix=TRUE, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, use.file.times=FALSE, fix=TRUE, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from name '.trackingSummary.rda'
 Using tracking summary read from file.
@@ -311,22 +311,22 @@ Some data files are not in the file map: '.x5.rda', '_2.rda', '_6.rda', 'abc.rda
 Some objects in the file map are not in the summary:
 Object File   
 def    def.rda
-Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
-.x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_', moving to ./tmp1/quarantine and rewriting the object
-Saving object 'X5' to './tmp1/_3.rda'
-Loading file './tmp1/_2.rda' for unknown object ... loaded 'Y'
-Loading file './tmp1/_6.rda' for unknown object ... loaded 'X6'
-Loading file './tmp1/abc.rda' for unknown object ... loaded 'abc'
-Loading file './tmp1/x1.1.rda' for unknown object ... loaded 'x1.1'
-Loading file './tmp1/x1.rda' for unknown object ... loaded 'x1'
-Loading file './tmp1/x2.rda' for unknown object ... loaded 'x2'
-Loading file './tmp1/x4.rda' for unknown object ... loaded 'x3'
-x4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp1/quarantine and rewriting the object
-Saving object 'x3' to './tmp1/x3.rda'
-Loading file './tmp1/xx4.rda' for unknown object ... loaded 'X4'
-xx4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp1/quarantine and rewriting the object
-Saving object 'X4' to './tmp1/_4.rda'
-Loading file './tmp1/def.rda' for object 'def' ... loaded 'def'
+Loading file './tmp7/.x5.rda' for unknown object ... loaded 'X5'
+.x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_', moving to ./tmp7/quarantine and rewriting the object
+Saving object 'X5' to './tmp7/_3.rda'
+Loading file './tmp7/_2.rda' for unknown object ... loaded 'Y'
+Loading file './tmp7/_6.rda' for unknown object ... loaded 'X6'
+Loading file './tmp7/abc.rda' for unknown object ... loaded 'abc'
+Loading file './tmp7/x1.1.rda' for unknown object ... loaded 'x1.1'
+Loading file './tmp7/x1.rda' for unknown object ... loaded 'x1'
+Loading file './tmp7/x2.rda' for unknown object ... loaded 'x2'
+Loading file './tmp7/x4.rda' for unknown object ... loaded 'x3'
+x4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp7/quarantine and rewriting the object
+Saving object 'x3' to './tmp7/x3.rda'
+Loading file './tmp7/xx4.rda' for unknown object ... loaded 'X4'
+xx4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp7/quarantine and rewriting the object
+Saving object 'X4' to './tmp7/_4.rda'
+Loading file './tmp7/def.rda' for object 'def' ... loaded 'def'
 New file map has 9 newly constructed entries and uses 4 old entries
 New summary has 9 newly constructed entries and uses 1 recovered and 3 old entries
 Writing file map to file.
@@ -349,7 +349,7 @@ x1.1   numeric   numeric     [1]      1 2001-01-01 12:00:19 2001-01-01 12:00:19 
 x2     numeric   numeric     [1]      1 2001-01-01 12:00:21 2001-01-01 12:00:21 2001-01-01 12:00:21 1  1  0  1  0  0
 x3     numeric   numeric     [1]      1 2001-01-01 12:00:22 2001-01-01 12:00:22 2001-01-01 12:00:22 1  1  0  1  0  0
 z      numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 2001-01-01 10:00:08 1  2  0  0  0  1
-> track.start("tmp1")
+> track.start("tmp7")
 > track.summary(time=3, size=FALSE, access=1)
          class      mode  extent length            modified             created            accessed TA TW
 X        array   numeric [2x3x4]     24 2001-01-01 09:00:08 2001-01-01 09:00:03 2001-01-01 09:00:06  2  3
@@ -370,8 +370,8 @@ z      numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 
 > # Test (6) rebuild an unlinked directory with just new .rda files
 > ##################################################
 > # Clean up all the directories created in these tests
-> unlink("tmp1", recursive=TRUE)
-> # And put some extra files in tmp1
+> unlink("tmp7", recursive=TRUE)
+> # And put some extra files in tmp7
 > x1 <- 1
 > x2 <- 2
 > x1.1 <- 3
@@ -379,33 +379,33 @@ z      numeric   numeric     [1]      1 2001-01-01 10:00:08 2001-01-01 10:00:08 
 > X4 <- 5
 > X5 <- 6
 > X6 <- 7
-> dir.create("tmp1")
-> save("x1", file="tmp1/x1.rda")
-> save("x2", file="tmp1/x2.rda")
-> save("x1.1", file="tmp1/x1.1.rda")
-> save("x3", file="tmp1/x4.rda")
-> save("X4", file="tmp1/xx4.rda")
-> save("X5", file="tmp1/.x5.rda")
-> save("X6", file="tmp1/_6.rda")
+> dir.create("tmp7")
+> save("x1", file="tmp7/x1.rda")
+> save("x2", file="tmp7/x2.rda")
+> save("x1.1", file="tmp7/x1.1.rda")
+> save("x3", file="tmp7/x4.rda")
+> save("X4", file="tmp7/xx4.rda")
+> save("X5", file="tmp7/.x5.rda")
+> save("X6", file="tmp7/_6.rda")
 > remove(list=c("x1", "x2", "x1.1", "x3", "X4", "X5", "X6"))
-> res <- track.rebuild(dir="tmp1", verbose=2, use.file.times=FALSE, fix=TRUE, dry.run=FALSE)
+> res <- track.rebuild(dir="tmp7", verbose=2, use.file.times=FALSE, fix=TRUE, dry.run=FALSE)
 Rebuilding an inactive tracking database
 Guessing RDataSuffix to be 'rda' from names of various RData files: 'xx4.rda'...
-File map file ('./tmp1/filemap.txt') does not exist; continuing...
+File map file ('./tmp7/filemap.txt') does not exist; continuing...
 Some data files are not in the file map: '.x5.rda', '_6.rda', 'x1.1.rda', 'x1.rda', 'x2.rda', 'x4.rda', 'xx4.rda'
-Loading file './tmp1/.x5.rda' for unknown object ... loaded 'X5'
-.x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_', moving to ./tmp1/quarantine and rewriting the object
-Saving object 'X5' to './tmp1/_1.rda'
-Loading file './tmp1/_6.rda' for unknown object ... loaded 'X6'
-Loading file './tmp1/x1.1.rda' for unknown object ... loaded 'x1.1'
-Loading file './tmp1/x1.rda' for unknown object ... loaded 'x1'
-Loading file './tmp1/x2.rda' for unknown object ... loaded 'x2'
-Loading file './tmp1/x4.rda' for unknown object ... loaded 'x3'
-x4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp1/quarantine and rewriting the object
-Saving object 'x3' to './tmp1/x3.rda'
-Loading file './tmp1/xx4.rda' for unknown object ... loaded 'X4'
-xx4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp1/quarantine and rewriting the object
-Saving object 'X4' to './tmp1/_2.rda'
+Loading file './tmp7/.x5.rda' for unknown object ... loaded 'X5'
+.x5.rda cannot be used as is because objects that do not have a 'simple' name must be stored in a file beginning with '_', moving to ./tmp7/quarantine and rewriting the object
+Saving object 'X5' to './tmp7/_1.rda'
+Loading file './tmp7/_6.rda' for unknown object ... loaded 'X6'
+Loading file './tmp7/x1.1.rda' for unknown object ... loaded 'x1.1'
+Loading file './tmp7/x1.rda' for unknown object ... loaded 'x1'
+Loading file './tmp7/x2.rda' for unknown object ... loaded 'x2'
+Loading file './tmp7/x4.rda' for unknown object ... loaded 'x3'
+x4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp7/quarantine and rewriting the object
+Saving object 'x3' to './tmp7/x3.rda'
+Loading file './tmp7/xx4.rda' for unknown object ... loaded 'X4'
+xx4.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp7/quarantine and rewriting the object
+Saving object 'X4' to './tmp7/_2.rda'
 New file map has 7 newly constructed entries and uses 0 old entries
 New summary has 7 newly constructed entries and uses 0 recovered and 0 old entries
 Writing file map to file.
@@ -422,7 +422,7 @@ x1   numeric numeric    [1]      1 2001-01-01 12:00:30 2001-01-01 12:00:30 2001-
 x1.1 numeric numeric    [1]      1 2001-01-01 12:00:29 2001-01-01 12:00:29 2001-01-01 12:00:29 1  1  0  1  0  0
 x2   numeric numeric    [1]      1 2001-01-01 12:00:31 2001-01-01 12:00:31 2001-01-01 12:00:31 1  1  0  1  0  0
 x3   numeric numeric    [1]      1 2001-01-01 12:00:32 2001-01-01 12:00:32 2001-01-01 12:00:32 1  1  0  1  0  0
-> track.start("tmp1")
+> track.start("tmp7")
 > track.summary(time=3, size=FALSE, access=1)
        class    mode extent length            modified             created            accessed TA TW
 X4   numeric numeric    [1]      1 2001-01-01 12:00:33 2001-01-01 12:00:33 2001-01-01 12:00:33  0  1
@@ -439,7 +439,7 @@ x3   numeric numeric    [1]      1 2001-01-01 12:00:32 2001-01-01 12:00:32 2001-
 > #   missing entries (different missing in the env & file
 > #   versions), & new .rda files
 > trackObjs:::create.fake.Sys.time(3600 * 4)
-> track.start("tmp1")
+> track.start("tmp7")
 > track(x <- 33)
 > track(X <- array(1:24, dim=2:4))
 > track(Y <- list(a=1:3,b=2))
@@ -485,20 +485,20 @@ x3     tracked FALSE       x3       TRUE  TRUE
 > assign(".trackingFileMap", filemap[-match(c("x", "X", "x1", "def"), names(filemap))], envir=trackingEnv)
 > # damage the filemap stored on disk
 > filemap2 <- filemap[-match(c("x", "X", "x2", "abc"), names(filemap))]
-> cat(paste(filemap2, ":", names(filemap2), "\n", sep=""), sep="", file="tmp1/filemap.txt")
-> readLines("tmp1/filemap.txt", -1)
+> cat(paste(filemap2, ":", names(filemap2), "\n", sep=""), sep="", file="tmp7/filemap.txt")
+> readLines("tmp7/filemap.txt", -1)
 [1] "_2:X4"     "_1:X5"     "_6:X6"     "x1:x1"     "x1.1:x1.1" "x3:x3"     "_4:Y"      "def:def"  
 > # damage the summary stored in the tracking environment
 > .trackingSummary <- get(".trackingSummary", envir=trackingEnv)
 > assign(".trackingSummary", .trackingSummary[-match(c("x", "abc", "X4"), rownames(.trackingSummary)),], envir=trackingEnv)
 > # damage the summary stored on disk
 > .trackingSummary <- .trackingSummary[-match(c("x", "def", "x1"), rownames(.trackingSummary)),]
-> save(".trackingSummary", file="tmp1/.trackingSummary.rda")
+> save(".trackingSummary", file="tmp7/.trackingSummary.rda")
 > # drop some extra save files in the tracking directory
 > aa <- list(1,2,3)
 > bb <- list(4,5)
-> save("aa", file="tmp1/x5.rda")
-> save("bb", file="tmp1/bb.rda")
+> save("aa", file="tmp7/x5.rda")
+> save("bb", file="tmp7/bb.rda")
 > remove(list=c("aa", "bb", "filemap", "filemap2", ".trackingSummary", "trackingEnv"))
 > # remove an active binding
 > remove(list=c("Y", "x1.1"))
@@ -515,14 +515,14 @@ Found a fileMap in the environment and on disk
 Using tracking summary from tracking environment.
 Using tracking summary read from file.
 Some data files are not in the file map: '_3.rda', 'abc.rda', 'bb.rda', 'x.rda', 'x2.rda', 'x5.rda'
-Loading file './tmp1/_3.rda' for unknown object ... loaded 'X'
-Loading file './tmp1/abc.rda' for unknown object ... loaded 'abc'
-Loading file './tmp1/bb.rda' for unknown object ... loaded 'bb'
-Loading file './tmp1/x.rda' for unknown object ... loaded 'x'
-Loading file './tmp1/x2.rda' for unknown object ... loaded 'x2'
-Loading file './tmp1/x5.rda' for unknown object ... loaded 'aa'
-x5.rda cannot be used as is because the file has a 'simple' name different to the object name, would move to ./tmp1/quarantine and rewrite the object
-Would save object 'aa' to './tmp1/aa.rda'
+Loading file './tmp7/_3.rda' for unknown object ... loaded 'X'
+Loading file './tmp7/abc.rda' for unknown object ... loaded 'abc'
+Loading file './tmp7/bb.rda' for unknown object ... loaded 'bb'
+Loading file './tmp7/x.rda' for unknown object ... loaded 'x'
+Loading file './tmp7/x2.rda' for unknown object ... loaded 'x2'
+Loading file './tmp7/x5.rda' for unknown object ... loaded 'aa'
+x5.rda cannot be used as is because the file has a 'simple' name different to the object name, would move to ./tmp7/quarantine and rewrite the object
+Would save object 'aa' to './tmp7/aa.rda'
 Looking at object 'cc' in tracking environment
 New file map has 7 newly constructed entries and uses 8 old entries
 New summary has 4 newly constructed entries and uses 3 recovered and 8 old entries
@@ -556,14 +556,14 @@ Found a fileMap in the environment and on disk
 Using tracking summary from tracking environment.
 Using tracking summary read from file.
 Some data files are not in the file map: '_3.rda', 'abc.rda', 'bb.rda', 'x.rda', 'x2.rda', 'x5.rda'
-Loading file './tmp1/_3.rda' for unknown object ... loaded 'X'
-Loading file './tmp1/abc.rda' for unknown object ... loaded 'abc'
-Loading file './tmp1/bb.rda' for unknown object ... loaded 'bb'
-Loading file './tmp1/x.rda' for unknown object ... loaded 'x'
-Loading file './tmp1/x2.rda' for unknown object ... loaded 'x2'
-Loading file './tmp1/x5.rda' for unknown object ... loaded 'aa'
-x5.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp1/quarantine and rewriting the object
-Saving object 'aa' to './tmp1/aa.rda'
+Loading file './tmp7/_3.rda' for unknown object ... loaded 'X'
+Loading file './tmp7/abc.rda' for unknown object ... loaded 'abc'
+Loading file './tmp7/bb.rda' for unknown object ... loaded 'bb'
+Loading file './tmp7/x.rda' for unknown object ... loaded 'x'
+Loading file './tmp7/x2.rda' for unknown object ... loaded 'x2'
+Loading file './tmp7/x5.rda' for unknown object ... loaded 'aa'
+x5.rda cannot be used as is because the file has a 'simple' name different to the object name, moving to ./tmp7/quarantine and rewriting the object
+Saving object 'aa' to './tmp7/aa.rda'
 Looking at object 'cc' in tracking environment
 New file map has 7 newly constructed entries and uses 8 old entries
 New summary has 4 newly constructed entries and uses 3 recovered and 8 old entries
@@ -660,7 +660,7 @@ x1.1   tracked FALSE     x1.1       TRUE  TRUE
 x2     tracked FALSE       x2       TRUE  TRUE
 x3     tracked FALSE       x3       TRUE  TRUE
 > track.stop()
-> track.start("tmp1")
+> track.start("tmp7")
 > track.summary(time=3, size=FALSE, access=1)
          class      mode  extent length            modified             created            accessed TA TW
 X        array   numeric [2x3x4]     24 2001-01-01 13:00:08 2001-01-01 13:00:03 2001-01-01 13:00:06  2  3
@@ -696,5 +696,5 @@ x1     tracked FALSE       x1       TRUE  TRUE
 x1.1   tracked FALSE     x1.1       TRUE  TRUE
 x2     tracked FALSE       x2       TRUE  TRUE
 x3     tracked FALSE       x3       TRUE  TRUE
-> unlink("tmp1", recursive=TRUE)
+> unlink("tmp7", recursive=TRUE)
 > 

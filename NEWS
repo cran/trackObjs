@@ -1,0 +1,13 @@
+		CHANGES in trackObjs version 0.8-0
+BUG FIXES
+    o   Fixed faulty detection of conflicting existing objects
+        when starting to track to an existing directory.
+
+    o   Replaced environment on function that is in the active
+        binding for a tracked object.  Previously, that function
+        could, if constructed via track(obj <- value), have a
+        copy of the tracked object in its environment, which would
+        stay present taking up memory even if the object was
+        flushed out of the tracking environment.
+
+    o   Fixed bug that stopped track.stop(all=TRUE) from working

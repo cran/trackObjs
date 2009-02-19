@@ -7,8 +7,8 @@
 > # Set the locale used by order() so that track.status() & track.summary() put
 > # rows in the same order on different systems (so that the test output matches).
 > invisible(Sys.setlocale("LC_COLLATE", "C"))
-> unlink("tmp1", recursive=TRUE)
-> track.start("tmp1")
+> unlink("tmp10", recursive=TRUE)
+> track.start("tmp10")
 > track(x <- 1)
 > track(prn <- 2)
 > track(nul <- 3)
@@ -39,7 +39,7 @@ nul      numeric numeric     [1]      1  0  1
 prn      numeric numeric     [1]      1  0  1
 x        numeric numeric     [1]      1  0  1
 > track.stop()
-> track.start("tmp1")
+> track.start("tmp10")
 > x
 [1] 1
 > prn
@@ -100,5 +100,5 @@ nul      numeric numeric     [1]      1  1  1
 prn      numeric numeric     [1]      1  1  1
 x        numeric numeric     [1]      1  1  1
 > track.stop()
-> unlink("tmp1", recursive=TRUE)
+> unlink("tmp10", recursive=TRUE)
 > 

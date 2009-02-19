@@ -10,14 +10,13 @@
 > # Set the locale used by order() so that track.status() & track.summary() put
 > # rows in the same order on different systems (so that the test output matches).
 > invisible(Sys.setlocale("LC_COLLATE", "C"))
-> unlink("tmp1", recursive=TRUE)
+> unlink("tmp5", recursive=TRUE)
 > attach(NULL, name="testenv")
 > remove(list=ls(all=TRUE))
-> track.start("tmp1", pos=2, cache=FALSE)
+> track.start("tmp5", pos=2, cache=FALSE)
 > # with the standard options, create a variable with each status:
 > # "tracked", "trackable", "untracked", "orphaned", "masked", "unsaved"
 > makeActiveBinding("uncoop", function(v) cat("I'm a binding that does nothing!\n"), as.environment("testenv"))
-NULL
 > assign(".trackingFileMap", "aren't I a mischevious little object :-)", pos=2)
 > assign(".trackingEnv", "I simply can't be tracked!", pos=2)
 > track(uncoop, pos=2)
@@ -282,6 +281,6 @@ In track.load("tmpy.rda", clobber = TRUE, pos = 2) :
 > find("y5")
 [1] "testenv"
 > track.stop(pos=2)
-> unlink("tmp1", recursive=TRUE)
+> unlink("tmp5", recursive=TRUE)
 > remove(list=ls(all=TRUE))
 > 
