@@ -173,7 +173,7 @@ x6       untracked    NA     <NA>         NA    NA
 > y1 <- 1
 > y2 <- "abc"
 > y3 <- list(2, "def")
-> save(list=c("y1", "y2", "y3"), file="tmpy.rda")
+> save(list=c("y1", "y2", "y3"), file="tmp5y.rda")
 > remove(list=c("y1", "y2", "y3"))
 > track.options(list(writeToDisk=TRUE, cache=TRUE), pos=2)
 > track.status(pos=2)
@@ -185,14 +185,14 @@ x3          masked FALSE       x3       TRUE  TRUE
 x4        orphaned FALSE       x4       TRUE  TRUE
 x5          masked FALSE       x5       TRUE  TRUE
 x6       untracked    NA     <NA>         NA    NA
-> track.load("tmpy.rda", pos=2)
+> track.load("tmp5y.rda", pos=2)
 $loaded
 [1] "y1" "y2" "y3"
 
 $skipped
 character(0)
 
-> unlink("tmpy.rda")
+> unlink("tmp5y.rda")
 > track.status(pos=2)
             Status InMem FileBase FileExists Saved
 uncoop untrackable    NA     <NA>         NA    NA
@@ -220,12 +220,12 @@ y3         tracked FALSE       y3       TRUE  TRUE
 > # track.load work correctly.
 > assign("y4", 4, pos=2)
 > assign("y5", 5, pos=2)
-> save(list=c("y3", "y4", "y5"), file="tmpy.rda", envir=as.environment(2))
+> save(list=c("y3", "y4", "y5"), file="tmp5y.rda", envir=as.environment(2))
 > remove(list=c("y4"), pos=2)
 > y3 <<- "new value"
 > y3
 [1] "new value"
-> track.load("tmpy.rda", pos=2)
+> track.load("tmp5y.rda", pos=2)
 $loaded
 [1] "y4"
 
@@ -233,7 +233,7 @@ $skipped
 [1] "y3" "y5"
 
 Warning message:
-In track.load("tmpy.rda", pos = 2) :
+In track.load("tmp5y.rda", pos = 2) :
   skipping 2 variable(s) because these exist in <environment 'testenv'> and clobber=FALSE: 'y3''y5'
 
 > y3
@@ -252,7 +252,7 @@ y2         tracked  TRUE       y2       TRUE  TRUE
 y3         tracked  TRUE       y3       TRUE  TRUE
 y4         tracked FALSE       y4       TRUE  TRUE
 y5       untracked    NA     <NA>         NA    NA
-> track.load("tmpy.rda", clobber=TRUE, pos=2)
+> track.load("tmp5y.rda", clobber=TRUE, pos=2)
 $loaded
 [1] "y3" "y4" "y5"
 
@@ -260,7 +260,7 @@ $skipped
 character(0)
 
 Warning message:
-In track.load("tmpy.rda", clobber = TRUE, pos = 2) :
+In track.load("tmp5y.rda", clobber = TRUE, pos = 2) :
   clobbering 3 existing variable(s) in <environment 'testenv'> and clobber=FALSE: 'y3''y4''y5'
 
 > y3
