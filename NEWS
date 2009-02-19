@@ -1,3 +1,8 @@
+		CHANGES in trackObjs version 0.8-2 (2009/02/19)
+BUG FIXES
+    o	Make each test use a unique tracking database so that
+    	tests don't interfere with each other when run in parallel.
+
 		CHANGES in trackObjs version 0.8-0
 BUG FIXES
     o   Fixed faulty detection of conflicting existing objects
