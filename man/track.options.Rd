@@ -98,7 +98,7 @@ track.options(..., pos = 1, envir = as.environment(pos), save = FALSE,
   specified as arguments, the full list of current option values is returned.
 }
 \author{Tony Plate <tplate@acm.org>}
-\seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }
+\seealso{ \link[=trackObjs-package]{Overview} and \link[=track.design]{design} of the \code{trackObjs} package. }
 \examples{
 library(trackObjs)
 unlink("tmp1", recursive=TRUE)

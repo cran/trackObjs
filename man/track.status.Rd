@@ -85,7 +85,7 @@ track.unsaved(  pos=1, envir=as.environment(pos), list=NULL, pattern=NULL, glob=
   mechanism for R-level access to the function associated with active
   bindings.
 }
-\seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }
+\seealso{ \link[=trackObjs-package]{Overview} and \link[=track.design]{design} of the \code{trackObjs} package. }
 \examples{
 library(trackObjs)
 unlink("tmp1", recursive=TRUE)

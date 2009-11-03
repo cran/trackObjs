@@ -271,13 +271,13 @@ David E. Brahm. Delayed data packages. R News, 2(3):11-12, December
 \author{Tony Plate <tplate@acm.org>}
 
 \seealso{
-\link[trackObjs]{Overview} of the \code{trackObjs} package.
+\link[=trackObjs-package]{Overview} of the \code{trackObjs} package.
 
 Documentation for \code{\link[base]{makeActiveBinding}} and related
 functions (in 'base' package).
 
-Inspriation from the packages \code{\link[g.data:g.data-package]{g.data}} and
-\code{\link[filehash:filehash-package]{filehash}}.
+Inspriation from the packages \code{\link[g.data:g.data.save]{g.data}} and
+\code{\link[filehash:dbLoad]{filehash}}.
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

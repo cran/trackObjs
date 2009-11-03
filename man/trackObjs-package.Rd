@@ -1,5 +1,5 @@
-\name{pkg-trackObjs}
-\alias{pkg-trackObjs}
+\name{trackObjs-package}
+\alias{trackObjs-package}
 \alias{trackObjs}
 \docType{package}
 \title{
@@ -40,8 +40,8 @@ memory as well as being stored on disk.  By default, objects are
 not cached.  To save time when working with collections of objects that
 will all fit in memory, turn on
 caching with
-\code{\link[track.options]{track.options}(cache=TRUE)}, or start
-tracking with \code{\link[track.start]{track.start}(..., cache=TRUE)}.
+\code{\link{track.options}(cache=TRUE)}, or start
+tracking with \code{\link{track.start}(..., cache=TRUE)}.
 
 Here is a brief example of tracking some variables in the global environment:
 
@@ -112,29 +112,29 @@ There are several points to note:
   Six functions cover the majority of common usage of the trackObjs package:
   
 \itemize{
-  \item \code{\link[track.start]{track.start}(dir=...)}: start tracking
+  \item \code{\link{track.start}(dir=...)}: start tracking
   the global environment, with files saved in \code{dir}
-  \item \code{\link[track.start]{track.stop}()}: stop tracking
+  \item \code{\link{track.stop}()}: stop tracking
   (any unsaved tracked variables are saved to disk and all tracked variables
   become unavailable until tracking starts again)
-  \item \code{\link[track]{track}(x)}: start tracking \code{x} -
+  \item \code{\link{track}(x)}: start tracking \code{x} -
   \code{x} in the global environment is replaced by an active binding
   and \code{x} is saved in its corresponding file in the tracking
   directory and, if caching is on, in the tracking environment
-  \item \code{\link[track]{track}(x <- value)}: start tracking \code{x}
-  \item \code{\link[track]{track}(list=c('x', 'y'))}: start tracking
+  \item \code{\link{track}(x <- value)}: start tracking \code{x}
+  \item \code{\link{track}(list=c('x', 'y'))}: start tracking
   specified variables
-  \item \code{\link[track]{track}(all=TRUE)}: start tracking all
+  \item \code{\link{track}(all=TRUE)}: start tracking all
   untracked variables in the global environment
-  \item \code{\link[untrack]{untrack}(x)}: stop tracking variable \code{x} -
+  \item \code{\link{untrack}(x)}: stop tracking variable \code{x} -
   the R object \code{x} is put back as an ordinary object in the global environment
-  \item \code{\link[untrack]{untrack}(all=TRUE)}: stop tracking all
+  \item \code{\link{untrack}(all=TRUE)}: stop tracking all
   variables in the global environment (but tracking is still set up)
-  \item \code{\link[untrack]{untrack}(list=...)}: stop tracking specified variables
-  \item \code{\link[track.summary]{track.summary}()}: print a summary of
+  \item \code{\link{untrack}(list=...)}: stop tracking specified variables
+  \item \code{\link{track.summary}()}: print a summary of
   the basic characteristics of tracked variables: name, class, extent,
   and creation, modification and access times.
-  \item \code{\link[track.remove]{track.remove}(x)}: completely remove all
+  \item \code{\link{track.remove}(x)}: completely remove all
   traces of \code{x} from the global environment, tracking environment
   and tracking directory.   Note that if variable \code{x} in the global
   environment is tracked,
@@ -158,37 +158,37 @@ e.g., dropping a new save file into a tracking directory.)
   
 The functions that can be used to set up and take down tracking are:
 \itemize{
-  \item \code{\link[track.start]{track.start}(dir=...)}: start tracking,
+  \item \code{\link{track.start}(dir=...)}: start tracking,
   using the supplied directory
-  \item \code{\link[track.start]{track.stop}()}: stop tracking
+  \item \code{\link{track.stop}()}: stop tracking
   (any unsaved tracked variables are saved to disk and all tracked variables
   become unavailable until tracking starts again)
-  \item \code{\link[track.start]{track.dir}()}: return the path of the
+  \item \code{\link{track.dir}()}: return the path of the
   tracking directory
 }
 
 Functions for tracking and stopping tracking variables:
 \itemize{
-  \item \code{\link[track]{track}(x)}
-  \code{\link[track]{track}(var <- value)}
-  \code{\link[track]{track}(list=...)}
-  \code{\link[track]{track}(all=TRUE)}: start tracking variable(s)
-  \item \code{\link[track.load]{track.load}(file=...): load some objects from
+  \item \code{\link{track}(x)}
+  \code{\link{track}(var <- value)}
+  \code{\link{track}(list=...)}
+  \code{\link{track}(all=TRUE)}: start tracking variable(s)
+  \item \code{\link{track.load}(file=...): load some objects from
     a RData file into the tracked environment}
-  \item \code{\link[untrack]{untrack}(x, keep.in.db=FALSE)}
-  \code{\link[untrack]{untrack}(list=...)}
-  \code{\link[untrack]{untrack}(all=TRUE)}: stop tracking variable(s) -
+  \item \code{\link{untrack}(x, keep.in.db=FALSE)}
+  \code{\link{untrack}(list=...)}
+  \code{\link{untrack}(all=TRUE)}: stop tracking variable(s) -
   value is left in place, and optionally, it is also left in the the database
 }
 
 Functions for getting status of tracking and summaries of variables:
-\itemize{  \item \code{\link[track.summary]{track.summary}()}: return a data
+\itemize{  \item \code{\link{track.summary}()}: return a data
   frame containing a summary of the basic characteristics of tracked
   variables: name, class, extent, and creation, modification and access times.
-  \item \code{\link[track.status]{track.status}()}: return a data frame
+  \item \code{\link{track.status}()}: return a data frame
   containing information about the tracking status of variables: whether
   they are saved to disk or not, etc.
-  \item \code{\link[env.is.tracked]{env.is.tracked}()}: tell whether an
+  \item \code{\link{env.is.tracked}()}: tell whether an
   environment is currently tracked
 }
 
@@ -197,48 +197,48 @@ tracking, but are less likely to be of use to new users.
 
 Functions for getting status of tracking and summaries of variables:
 \itemize{
-  \item \code{\link[tracked]{tracked}()}: return the names of tracked variables
-  \item \code{\link[untracked]{untracked}()}: return the names of
+  \item \code{\link{tracked}()}: return the names of tracked variables
+  \item \code{\link{untracked}()}: return the names of
   untracked variables
-  \item \code{\link[untrackable]{untrackable}()}:  return the names of
+  \item \code{\link{untrackable}()}:  return the names of
   variables that cannot be tracked
-  \item \code{\link[track.unsaved]{track.unsaved}()}: return the names of
+  \item \code{\link{track.unsaved}()}: return the names of
   variables whose copy on file is out-of-date
-  \item \code{\link[track.orphaned]{track.orphaned}()}: return the
+  \item \code{\link{track.orphaned}()}: return the
   names of once-tracked variables that have lost their active binding
   (should not happen)
-  \item \code{\link[track.masked]{track.masked}()}: return the names of
+  \item \code{\link{track.masked}()}: return the names of
   once-tracked variables whose active binding has been overwritten by an
   ordinary variable (should not happen)
 }
 
 Functions for managing tracking and tracked variables:
 \itemize{
-  \item \code{\link[track.options]{track.options}()}: examine and set
+  \item \code{\link{track.options}()}: examine and set
   options to control tracking
-  \item \code{\link[track.remove]{track.remove}()}: completely remove all
+  \item \code{\link{track.remove}()}: completely remove all
   traces of a tracked variable
-  \item \code{\link[track.save]{track.save}()}: write unsaved variables to disk
-  \item \code{\link[track.flush]{track.flush}()}: write unsaved variables to disk, and remove from memory
-  \item \code{\link[track.forget]{track.forget}()}: delete cached
+  \item \code{\link{track.save}()}: write unsaved variables to disk
+  \item \code{\link{track.flush}()}: write unsaved variables to disk, and remove from memory
+  \item \code{\link{track.forget}()}: delete cached
   versions without saving to file (file version will be retrieved next
   time the variable is accessed)
-  \item \code{\link[track.restart]{track.restart}()}: reload variable
+  \item \code{\link{track.restart}()}: reload variable
   values from disk (can forget all cached vars, remove no-longer existing tracked vars)
-  \item \code{\link[track.load]{track.load}()}: load variables from a
+  \item \code{\link{track.load}()}: load variables from a
   saved RData file into the tracking session
 }
 
 Functions for recovering from errors:
 \itemize{
-  \item \code{\link[track.rebuild]{track.rebuild}()}: rebuild tracking
+  \item \code{\link{track.rebuild}()}: rebuild tracking
   information from objects in memory or on disk
-  \item \code{\link[track.flush]{track.flush}}: write unsaved variables to disk, and remove from memory
+  \item \code{\link{track.flush}}: write unsaved variables to disk, and remove from memory
 }
 
 Design and internals of tracking:
 \itemize{
-  \item \code{\link[track.design]{track.design}}
+  \item \code{\link{track.design}}
 }
 }
 
@@ -254,17 +254,17 @@ David E. Brahm. Delayed data packages. R News, 2(3):11-12, December
 }
 
 \seealso{
-\link[track.design]{Design} of the \code{trackObjs} package.
+\link[=track.design]{Design} of the \code{trackObjs} package.
 
-Potential \link[track.future]{future features} of the \code{trackObjs} package.
+Potential \link[=track.future]{future features} of the \code{trackObjs} package.
 
-Documentation for \code{\link[save]{save}} \code{\link[load]{load}} (in 'base' package).
+Documentation for \code{\link{save}} and \code{\link{load}} (in 'base' package).
 
-Documentation for \code{\link[base]{makeActiveBinding}} and related
+Documentation for \code{\link{makeActiveBinding}} and related
 functions (in 'base' package).
 
-Inspriation from the packages \code{\link[g.data:g.data-package]{g.data}} and
-\code{\link[filehash:filehash-package]{filehash}}.
+Inspriation from the packages \code{\link[g.data:g.data.save]{g.data}} and
+\code{\link[filehash:dbLoad]{filehash}}.
 }
 \keyword{ package }
 \keyword{ data }

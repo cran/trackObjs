@@ -83,7 +83,7 @@ track.summary(expr, pos = 1, envir = as.environment(pos), list = NULL, pattern =
   visible on the search path.
 }
 \author{Tony Plate <tplate@acm.org>}
-\seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }
+\seealso{ \link[=trackObjs-package]{Overview} and \link[=track.design]{design} of the \code{trackObjs} package. }
 \examples{
 library(trackObjs)
 unlink("tmp1", recursive=TRUE)

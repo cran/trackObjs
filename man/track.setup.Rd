@@ -75,7 +75,7 @@ available.
       it returns the subset of that vector that are tracked environments.}
 }
 \author{Tony Plate <tplate@acm.org>}
-\seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }
+\seealso{ \link[=trackObjs-package]{Overview} and \link[=track.design]{design} of the \code{trackObjs} package. }
 \examples{
 library(trackObjs)
 unlink("tmp1", recursive=TRUE)

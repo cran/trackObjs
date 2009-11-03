@@ -125,5 +125,5 @@ X[1]
 X[2] <- 1 # 'X' is fetched twice
 X
 }
-\seealso{ \link[trackObjs]{Overview} and \link[track.design]{design} of the \code{trackObjs} package. }
+\seealso{ \link[=trackObjs-package]{Overview} and \link[=track.design]{design} of the \code{trackObjs} package. }
 \keyword{ data }
