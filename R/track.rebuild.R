@@ -1,4 +1,4 @@
-track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE, level=c("missing", "all"), trust=c("unspecified", "environment", "db"), verbose=1, RDataSuffix=NULL, dry.run=TRUE, replace.wd=TRUE, use.file.times=TRUE) {
+track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE, level=c("missing", "all"), trust=c("unspecified", "environment", "db"), verbose=1, RDataSuffix=NULL, dryRun=TRUE, replace.wd=TRUE, use.file.times=TRUE) {
     ## Rebuild the fileMap and/or the trackingSummary in the tracking dir.
     ## Those objects generally contain redundant information, but they can be
     ## expensive to rebuild, because rebuilding them requires reading every
@@ -22,7 +22,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
     ##     * unusable .rda files (multiple objects, illegal or duplicated names)
     ##       are moved to the 'quarantine' directory
     ##
-    ## If dry.run=TRUE, nothing should be changed (but if fix=TRUE, fixes
+    ## If dryRun=TRUE, nothing should be changed (but if fix=TRUE, fixes
     ## are reported but not made).
     ##
     ## This function is quite long and complex because it has to deal with
@@ -50,8 +50,8 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         x <- envSummary[match(objName, row.names(envSummary), nomatch=0),,drop=FALSE]
         y <- fileSummary[match(objName, row.names(fileSummary), nomatch=0),,drop=FALSE]
         if (nrow(x) && nrow(y)) {
-            y.newer <- (max(unlist(x[,c("modified", "created", "accessed")]), na.rm=T)
-                        < max(unlist(y[,c("modified", "created", "accessed")]), na.rm=T))
+            y.newer <- (max(unlist(x[,c("modified", "created", "accessed")]), na.rm=TRUE)
+                        < max(unlist(y[,c("modified", "created", "accessed")]), na.rm=TRUE))
             if (!is.na(y.newer) && y.newer)
                 x <- y
         } else if (nrow(y)) {
@@ -101,6 +101,8 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
             path
     }
 
+    if (dryRun)
+        cat("dryRun=TRUE: no changes will be actually be made\n")
     trackingEnv <- NULL
     if (!is.null(dir)) {
         dir <- getAbsolutePath(dir)
@@ -112,7 +114,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         ## (different names for the same directory) by creating a
         ## temporary file in the directory, and then looking for it.
         activeTracking <- FALSE
-        if (!file.exists(dir))
+        if (!dir.exists(dir))
             stop("'", dir, "' does not exist")
         tmpfile <- tempfile(".rebuildTest", dir)
         tmpfilebase <- basename(tmpfile)
@@ -177,79 +179,92 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         suffixRegExp <- gopt$RDataSuffixes
     else
         suffixRegExp <- paste("(", paste(gopt$RDataSuffixes, collapse="|", sep=""), ")", sep="")
-    if (file.exists(file.path(dataDir))) {
-        ## Try to work out the suffix being used
-        ## First look for .trackingOptions file
-        suffix <- NULL
-        x <- list.files(path=dataDir, pattern=paste("^\\.trackingOptions\\.", suffixRegExp, "$", sep=""), all.files=TRUE)
+    if (!dir.exists(file.path(dataDir)))
+        stop("dataDir does not exist: \"", dataDir, "\"")
+
+    ## Try to work out the suffix being used
+    ## First look for .trackingOptions file
+    suffix <- NULL
+    x <- list.files(path=dataDir, pattern=paste("^\\.trackingOptions\\.", suffixRegExp, "$", sep=""), all.files=TRUE)
+    if (length(x)>1)
+        stop("have multiple options files in '", dataDir, "': ", paste(x, collapse=", "))
+    if (length(x)==1) {
+        suffix <- sub(".*\\.", "", x)
+        cat("Guessing RDataSuffix to be '", suffix, "' from name '", x, "'\n", sep="")
+    }
+    if (is.null(suffix)) {
+        ## next look for .trackingSummary file
+        x <- list.files(path=dataDir, pattern=paste("^\\.trackingSummary\\.", suffixRegExp, "$", sep=""), all.files=TRUE)
         if (length(x)>1)
-            stop("have multiple options files in '", dataDir, "': ", paste(x, collapse=", "))
+            stop("have multiple summary files in '", dataDir, "': ", paste(x, collapse=", "))
         if (length(x)==1) {
             suffix <- sub(".*\\.", "", x)
             cat("Guessing RDataSuffix to be '", suffix, "' from name '", x, "'\n", sep="")
         }
-        if (is.null(suffix)) {
-            ## next look for .trackingSummary file
-            x <- list.files(path=dataDir, pattern=paste("^\\.trackingSummary\\.", suffixRegExp, "$", sep=""), all.files=TRUE)
-            if (length(x)>1)
-                stop("have multiple summary files in '", dataDir, "': ", paste(x, collapse=", "))
-            if (length(x)==1) {
-                suffix <- sub(".*\\.", "", x)
-                cat("Guessing RDataSuffix to be '", suffix, "' from name '", x, "'\n", sep="")
-            }
-        }
-        if (is.null(suffix)) {
-            ## next look for any files with possible RData suffix
-            x <- list.files(path=dataDir, pattern=paste("^.*\\.", suffixRegExp, "$", sep=""), all.files=TRUE)
-            if (length(x)>0) {
-                suffix <- unique(sub(".*\\.", "", x))
-                if (length(suffix)>1)
-                    stop("have files with multiple RData suffixes in '", dataDir, "': ", paste(x, collapse=", "))
-                cat("Guessing RDataSuffix to be '", suffix, "' from names of various RData files: ",
-                    paste("'", x[max(length(x), 2)], "'", collapse=", ", sep=""),
-                    if (length(x)>2) "...", "\n", sep="")
-            } else {
-                if (!is.null(RDataSuffix)) {
-                    suffix <- RDataSuffix
-                    cat("Using RDataSuffix '", suffix, "' from supplied argument\n", sep="")
-                } else {
-                    suffix <- gopt$RDataSuffixes[1]
-                    cat("Using RDataSuffix '", suffix, "' from options('global.track.options')\n", sep="")
-                }
-            }
-        }
-        if (!is.element(suffix, gopt$RDataSuffixes))
-            stop("internal error: ended up with an illegal suffix?? (", suffix, ")")
-        if (!is.null(RDataSuffix) && RDataSuffix != suffix)
-            stop("suffix in use '", suffix, "' differs from supplied RDataSuffix ('", RDataSuffix, "')")
-    } else {
-        if (is.null(RDataSuffix))
-            suffix <- gopt$RDataSuffixes[1]
-        else
-            suffix <- RDataSuffix
     }
+    if (is.null(suffix)) {
+        ## next look for any files with possible RData suffix
+        x <- list.files(path=dataDir, pattern=paste("^.*\\.", suffixRegExp, "$", sep=""), all.files=TRUE)
+        if (length(x)>0) {
+            suffix <- unique(sub(".*\\.", "", x))
+            if (length(suffix)>1)
+                stop("have files with multiple RData suffixes in '", dataDir, "': ", paste(x, collapse=", "))
+            cat("Guessing RDataSuffix to be '", suffix, "' from names of various RData files: ",
+                paste("'", x[max(length(x), 2)], "'", collapse=", ", sep=""),
+                if (length(x)>2) "...", "\n", sep="")
+        } else {
+            if (!is.null(RDataSuffix)) {
+                suffix <- RDataSuffix
+                cat("Using RDataSuffix '", suffix, "' from supplied argument\n", sep="")
+            } else {
+                suffix <- gopt$RDataSuffixes[1]
+                cat("Using RDataSuffix '", suffix, "' from options('global.track.options')\n", sep="")
+            }
+        }
+    }
+    if (!is.element(suffix, gopt$RDataSuffixes))
+        stop("internal error: ended up with an illegal suffix?? (", suffix, ")")
+    if (!is.null(RDataSuffix) && RDataSuffix != suffix)
+        stop("suffix in use '", suffix, "' differs from supplied RDataSuffix ('", RDataSuffix, "')")
 
     if (activeTracking) {
         opt <- track.options(trackingEnv=trackingEnv)
-        if (opt$RDataSuffix != suffix) {
-            if (fix) {
-                cat("Changing RDataSuffix saved in options to '", suffix, "'")
-                if (dry.run)
-                    opt$RDataSuffix <- suffix
-                else
-                    opt <- track.options(list(RDataSuffix=suffix), trackingEnv=trackingEnv)
-                if (opt$RDataSuffix != suffix)
-                    stop("Strange: was unable to change stored option RDataSuffix to '", suffix, "'")
-            } else {
-                stop("Deduced RDataSuffix '", suffix, "' is different to suffix '",
-                     opt$RDataSuffix,
-                     "' stored in trackingEnv.  Do either track.rebuild(..., RDataSuffix='",
-                     opt$RDataSuffix, "') to use the stored suffix, ",
-                     "or track.rebuild(..., fix=TRUE) to change the stored suffix to '", suffix, "'")
-            }
-        }
+        if (opt$readonly)
+            stop("cannot rebuild a readonly tracking environment")
     } else {
         opt <- list(RDataSuffix=suffix)
+        opt <- list()
+        ## Read the options, using the suffix we found above
+        file <- file.path(dataDir, paste(".trackingOptions", suffix, sep="."))
+        if (file.exists(file)) {
+            tmpenv <- new.env(parent=emptyenv())
+            load.res <- try(load(file=file, envir=tmpenv), silent=TRUE)
+            if (is(load.res, "try-error") || length(load.res)!=1 || load.res!=".trackingOptions") {
+                warning(file, " does not contain a .trackingOptions object -- ignoring it and using system defaults")
+            } else {
+                opt <- get(".trackingOptions", envir=tmpenv, inherits=FALSE)
+            }
+        }
+        opt <- track.options(old.options=opt, envir=NULL, only.preprocess=TRUE)
+    }
+    if (length(gopt))
+        opt <- replace(opt, names(gopt), gopt)
+    if (opt$RDataSuffix != suffix) {
+        if (fix) {
+            cat("Changing RDataSuffix saved in options to '", suffix, "'")
+            if (dryRun)
+                opt$RDataSuffix <- suffix
+            else
+                opt <- track.options(values=list(RDataSuffix=suffix), trackingEnv=trackingEnv)
+            if (opt$RDataSuffix != suffix)
+                stop("Strange: was unable to change stored option RDataSuffix to '", suffix, "'")
+        } else {
+            stop("Deduced RDataSuffix '", suffix, "' is different to suffix '",
+                 opt$RDataSuffix,
+                 "' stored in trackingEnv.  Do either track.rebuild(..., RDataSuffix='",
+                 opt$RDataSuffix, "') to use the stored suffix, ",
+                 "or track.rebuild(..., fix=TRUE) to change the stored suffix to '", suffix, "'")
+        }
     }
     ##
     ## Now we have the options and directory and know if the db is active
@@ -275,8 +290,8 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
             cat("There are other ", length(files), " files in '", dataDir, "' that look like RDataFiles: ",
                 paste("'", files[seq(len=min(2, length(files)))], "'", collapse=", ", sep=""),
                 if (length(files)>2) "...", "\n", sep="")
-            if (!fix || dry.run) {
-                cat("Leaving these alone: call track.rebuild(..., fix=TRUE, dry.run=FALSE) to rename these with suffix '", suffix, "' or move them to quarantine\n", sep="")
+            if (!fix || dryRun) {
+                cat("Leaving these alone: call track.rebuild(..., fix=TRUE, dryRun=FALSE) to rename these with suffix '", suffix, "' or move them to quarantine\n", sep="")
             } else {
                 cat("Attempting to rename these files to use suffix '", suffix, "'\n", sep="")
                 for (f in files) {
@@ -313,13 +328,13 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
     fileMap <- character(0)
     fileMapFullPath <- file.path(dataDir, "filemap.txt")
     if (file.exists(fileMapFullPath)) {
-        open.res <- try(con <- file(fileMapFullPath, open="rb"), silent=T)
+        open.res <- try(con <- file(fileMapFullPath, open="rb"), silent=TRUE)
         if (is(open.res, "try-error")) {
             cat("Cannot open '", abbrevWD(fileMapFullPath), "' for reading; ignoring and continuing... (error was: ",
                 formatMsg(open.res), ")\n", sep="")
         } else {
             on.exit(close(con))
-            fileData <- try(readLines(con=con, n=-1), silent=T)
+            fileData <- try(readLines(con=con, n=-1), silent=TRUE)
             if (is(fileData, "try-error")) {
                 cat("Unable to read '", abbrevWD(fileMapFullPath), "'; ignoring and continuing... (error was: ",
                     formatMsg(fileData), ")\n", sep="")
@@ -391,11 +406,11 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
     ## Read the summary, into summary and envSummary
     ## Will keep both of these because and get most
     ## recent info for each object one at a time.
-    summarySkel <- summaryRow(name="")
+    summarySkel <- summaryRow(name="", opt=opt)
     envSummary <- summarySkel[0,]
     if (activeTracking) {
         if (exists(".trackingSummary", envir=trackingEnv, inherits=FALSE)) {
-            envSummary <- get(".trackingSummary", envir=trackingEnv, inherits=FALSE)
+            envSummary <- getObjSummary(trackingEnv, opt=opt)
             if (!is.data.frame(envSummary)) {
                 cat("Tracking summary from tracking environment is not a data frame - discarding it.\n")
                 envSummary <- NULL
@@ -414,7 +429,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         }
     }
     if (file.exists(file.path(dataDir, paste(".trackingSummary", suffix, sep=".")))) {
-        load.res <- try(load(file=file.path(dataDir, paste(".trackingSummary", suffix, sep=".")), envir=tmpenv), silent=T)
+        load.res <- try(load(file=file.path(dataDir, paste(".trackingSummary", suffix, sep=".")), envir=tmpenv), silent=TRUE)
         if (is(load.res, "try-error")) {
             cat("Cannot load '", abbrevWD(file.path(dataDir, paste(".trackingSummary", opt$RDataSuffix, sep="."))),
                 "' -- rebuilding... (error was: ",
@@ -423,7 +438,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
             cat("Strange: '", abbrevWD(file.path(dataDir, paste(".trackingSummary", opt$RDataSuffix, sep="."))),
                 " does not containg a '.trackingSummary' object -- rebuilding...\n")
         } else {
-            fileSummary <- get(".trackingSummary", tmpenv, inherits=FALSE)
+            fileSummary <- getObjSummary(tmpenv, opt=opt)
             if (!is.data.frame(fileSummary)) {
                 cat("Tracking summary read from file is not a data frame - ignoring it.\n")
                 fileSummary <- NULL
@@ -441,8 +456,8 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
             fileSummary <- summarySkel[0,]
         else
             cat("Using tracking summary read from file.\n")
-            
-        objs <- ls(all=T, envir=tmpenv)
+
+        objs <- ls(all.names=TRUE, envir=tmpenv)
         if (length(objs))
             remove(list=objs, envir=tmpenv)
     } else {
@@ -496,19 +511,20 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
             cat(paste(format(c("Object", names(fileMap)[i])), " ", format(c("File", paste(fileMap[i], suffix, sep="."))), "\n", sep=""), sep="")
             filesToRead <- c(filesToRead, fileMap[i])
         }
-        ## Reuse data for objects in the fileMap that are in the summary
-        ## and have objects or files.
-        ## First look at objects in the env
-        objNames <- intersect(names(fileMap), row.names(envSummary))
-        reuseSummary <- envSummary[objNames,,drop=FALSE]
-        objNames <- setdiff(intersect(names(fileMap), row.names(fileSummary)), objNames)
-        if (length(objNames))
-            reuseSummary <- rbind(reuseSummary, fileSummary[objNames,,drop=FALSE])
-        reuseObjs <- row.names(reuseSummary)
-        # reuseFileMap <- fileMap[reuseObjs]
     } else {
         filesToRead <- unique(c(names(dbFiles), fileMap))
+        reuseObjs <- character(0)
     }
+    ## Reuse data for objects in the fileMap that are in the summary
+    ## and have objects or files.
+    ## First look at objects in the env
+    objNames <- intersect(names(fileMap), row.names(envSummary))
+    reuseSummary <- envSummary[objNames,,drop=FALSE]
+    objNames <- setdiff(intersect(names(fileMap), row.names(fileSummary)), objNames)
+    if (length(objNames))
+        reuseSummary <- rbind(reuseSummary, fileSummary[objNames,,drop=FALSE])
+    reuseObjs <- row.names(reuseSummary)
+    # reuseFileMap <- fileMap[reuseObjs]
 
     ##
     ## Read each of the files in filesToRead (or its object in the env)
@@ -539,7 +555,15 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         } else if (!file.exists(file.path(dataDir, objFile))) {
             cat("Object '", (if (!is.na(objName)) objName  else "(unknown)") , "'",
                 " is not stored on file ('", abbrevWD(file.path(dataDir, objFile)), "')",
-                " and is not cached -- forgetting about it\n")
+                " and is not cached -- forgetting about it\n", sep="")
+            i <- match(objName, names(fileMap))
+            if (!is.na(i))
+                fileMap <- fileMap[-i]
+            ## Remove the active binding
+            if (!dryRun && activeTracking && exists(objName, envir=envir, inherits=FALSE))
+                rm(list=objName, envir=envir)
+            if (is.element(objName, rownames(reuseSummary)))
+                reuseSummary <- reuseSummary[-match(objName, rownames(reuseSummary)), , drop=FALSE]
         } else {
             if (verbose > 1)
                 cat("Loading file '", abbrevWD(file.path(dataDir, objFile)), "' for ",
@@ -553,7 +577,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
             }
             ok <- TRUE
             fixable <- TRUE
-            if (dry.run) {
+            if (dryRun) {
                 moving.msg <- "would move"
                 rewriting.msg <- "rewrite"
             } else {
@@ -615,8 +639,8 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                 if (is.na(objName))
                     newFileMap <- setNamedElt(newFileMap, load.res, objFileBase)
             } else if (fix) {
-                if (!dry.run) {
-                    if (!file.exists(quarantineDir))
+                if (!dryRun) {
+                    if (!dir.exists(quarantineDir))
                         dir.create(quarantineDir)
                     if (!file.rename(file.path(dataDir, objFile), file.path(quarantineDir, objFile)))
                         cat("Unable to move '", objFile, "' to quarantine\n", sep="")
@@ -632,10 +656,11 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                             cat("Ignoring object with already-used name ('", load.res, "' in '", objFile, "'\n", sep="")
                         } else {
                             newFile <- file.path(dataDir, paste(newFileBase[i], suffix, sep="."))
-                            cat(if (dry.run) "Would save" else "Saving",
+                            cat(if (dryRun) "Would save" else "Saving",
                                 " object '", load.res[i], "' to '", abbrevWD(newFile), "'\n", sep="")
-                            if (!dry.run) {
-                                save.res <- try(save(list=load.res[i], file=newFile, envir=tmpenv), silent=T)
+                            if (!dryRun) {
+                                save.res <- try(save(list=load.res[i], file=newFile, envir=tmpenv,
+                                                     compress=opt$compress, compression_level=opt$compression_level), silent=TRUE)
                                 if (is(save.res, "try-error")) {
                                     cat("Could not save obj '", load.res[i], "' in file '", abbrevWD(newFile), "' (error was '",
                                         formatMsg(save.res), "')\n", sep="")
@@ -643,7 +668,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                                     savedOk[i] <- TRUE
                                 }
                             } else {
-                                # dry.run: pretend that it was saved OK
+                                # dryRun: pretend that it was saved OK
                                 savedOk[i] <- TRUE
                             }
                         }
@@ -665,19 +690,19 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                 if (is.null(sumRow)) {
                     ## try to rebuild this summary row
                     if (use.file.times)
-                        sumRow <- summaryRow(o, obj=obj, file=file.path(dataDir, objFile), accessed=FALSE)
+                        sumRow <- summaryRow(o, opt=opt, obj=obj, file=file.path(dataDir, objFile), accessed=FALSE)
                     else
-                        sumRow <- summaryRow(o, obj=obj, accessed=FALSE)
+                        sumRow <- summaryRow(o, opt=opt, obj=obj, accessed=FALSE)
                 } else {
                     ## update the summary row (but don't change times)
-                    sumRow <- summaryRow(o, sumRow=sumRow, obj=obj, accessed=FALSE)
+                    sumRow <- summaryRow(o, opt=opt, sumRow=sumRow, obj=obj, accessed=FALSE)
                     sumRowsReused <- sumRowsReused + 1
                 }
                 newSummaryRows <- setNamedElt(newSummaryRows, o, sumRow)
             }
         }
         ## Clean up tmpenv for the next iteration
-        objs <- ls(all=T, envir=tmpenv)
+        objs <- ls(all.names=TRUE, envir=tmpenv)
         if (length(objs))
             remove(list=objs, envir=tmpenv)
     }
@@ -704,7 +729,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                 sumRow <- chooseBestSummaryRow(objName)
                 ## update or recreate the summary row (sumRow could be NULL)
                 ## we have no file info to get times from
-                sumRow <- summaryRow(objName, sumRow=sumRow, obj=obj)
+                sumRow <- summaryRow(objName, opt=opt, sumRow=sumRow, obj=obj)
                 newSummaryRows[[objName]] <- sumRow
             }
             unsaved <- mget(".trackingUnsaved", envir=trackingEnv, inherits=FALSE, ifnotfound=list(character(0)))[[1]]
@@ -732,7 +757,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                 "newly constructed entries and uses",  sumRowsReused, "recovered and",
                 (if (is.null(reuseSummary)) 0 else nrow(reuseSummary)),
                 "old entries\n")
-        newSummary <- rbind(reuseSummary, newSummary)
+        newSummary <- rbind(reuseSummary, newSummary[!(rownames(newSummary) %in% rownames(reuseSummary)), , drop=FALSE])
     } else {
         if (verbose>1)
             cat("New summary has zero entries\n")
@@ -745,15 +770,15 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
     masked <- character(0)
     if (activeTracking) {
         ## Get all the objects in the environment
-        visibleObjs <- ls(envir=envir, all=TRUE)
+        visibleObjs <- ls(envir=envir, all.names=TRUE)
         ## We're only interested in ones with the same names as tracked vars
         visibleObjs <- intersect(visibleObjs, rownames(newSummary))
         missingBindings <- setdiff(rownames(newSummary), visibleObjs)
         if (length(missingBindings)) {
-            cat(if (dry.run) "Would rebuild " else "Rebuilding ",
+            cat(if (dryRun) "Would rebuild " else "Rebuilding ",
                 length(missingBindings), " missing active bindings: ",
                 paste(missingBindings, collapse=", "), "\n", sep="")
-            if (!dry.run) {
+            if (!dryRun) {
                 for (objName in missingBindings) {
                     f <- substitute(function(v) {
                         if (missing(v))
@@ -762,7 +787,7 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
                             setTrackedVar(x, v, envir)
                     }, list(x=objName, envir=trackingEnv))
                     mode(f) <- "function"
-                    environment(f) <- emptyenv()
+                    environment(f) <- parent.env(environment(f))
                     makeActiveBinding(objName, env=envir, fun=f)
                 }
             }
@@ -780,16 +805,17 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         res$unsaved <- unsaved
     if (length(masked))
         res$masked <- masked
-    if (dry.run) {
-        return(res)
+    if (dryRun) {
+        cat("Run with dryRun=FALSE to actually make changes\n")
+        return(invisible(res))
     } else {
         if (activeTracking) {
             if (verbose>1)
                 cat("Assigning '.trackingFileMap' and '.trackingSummary' in tracking environment.\n")
-            if (is(assign.res <- try(assign(".trackingFileMap", newFileMap, envir=trackingEnv)), "try-error"))
+            if (is(assign.res <- try(assign(".trackingFileMap", newFileMap, envir=trackingEnv), silent=TRUE), "try-error"))
                 warning("failed to assign '.trackingFileMap' in ", envname(trackingEnv),
                         " (error was '", formatMsg(res), "')")
-            assign.res <- try(assign(".trackingSummary", newSummary, envir=trackingEnv))
+            assign.res <- try(assign(".trackingSummary", newSummary, envir=trackingEnv), silent=TRUE)
             if (is(assign.res, "try-error"))
                 warning("unable to assign .trackingSummary back to tracking env on ", envname(envir),
                         " (error was '", formatMsg(assign.res), "')")
@@ -803,11 +829,11 @@ track.rebuild <- function(pos=1, envir=as.environment(pos), dir=NULL, fix=FALSE,
         if (verbose>1)
             cat("Saving object summary to file.\n")
         if (activeTracking) {
-            save.res <- try(save(list=".trackingSummary", file=file, envir=trackingEnv), silent=TRUE)
+            save.res <- try(save(list=".trackingSummary", file=file, envir=trackingEnv, compress=FALSE), silent=TRUE)
         } else {
             ## Need to have newSummary in a variable named '.trackingSummary' to use save()
             assign(".trackingSummary", newSummary, envir=tmpenv)
-            save.res <- try(save(list=".trackingSummary", file=file, envir=tmpenv), silent=TRUE)
+            save.res <- try(save(list=".trackingSummary", file=file, envir=tmpenv, compress=FALSE), silent=TRUE)
         }
         if (is(save.res, "try-error"))
             warning("unable to save .trackingSummary to ", dir, " (error was '", formatMsg(save.res), "')")

@@ -22,9 +22,11 @@ objects, including creation, modification and access times.
 
 A tracking environment can be linked to one environment on the search
 path, but the tracking environment is not on the search path itself.  An
-environment can only have one tracking environment linked to it.  Variables
-cannot be tracked automatically: they must be registered with the
-tracking environment using the function \code{track()}.
+environment on the search path can only have one tracking environment
+linked to it.  In standard use, variables are tracked automatically by a
+task callback function.  Alternatively, variables to track can be
+registered with the tracking environment using the function
+\code{track()}.
 
 Any user-created environment on the search path, or the global
 environment, can be tracked.
@@ -40,27 +42,34 @@ Note that the default tracked visible environment is the global environment.
 \preformatted{
 
 Tracked Visible Environment
-(on search list)
-attr(., "trackingEnv") -> Tracking Environment   +->  Tracking Directory (files)
-+-----------------+       (not on search list)  /         |
-|                 |       attr(., "trackingDir")          |
-|                 |   +-------------------------+         +
-|                 |   |        .trackingFileMap |         +- filemap.txt
-|                 |   |        .trackingSummary |         +- .trackingSummary.rda
-|                 |   |        .trackingUnsaved |         |
-|                 |   | .trackingSummaryChanged |         |
-|                 |   |        .trackingOptions |         |
+(on search list)          Tracking Environment
+                          (not on search list)
++-----------------+   +-------------------------+
+|     .trackingEnv|-->|            .trackingDir |---> Tracking Directory (files)
+|                 |   |                         |         |
 |         x (*)   |   |                   x (@) |         +- x.rda
 |       abc (*)   |   |                 abc (@) |         +- abc.rda
 |         Y (*)   |   |                   Y (@) |         +- _1.rda
-|        x1       |   +-------------------------+
-|        x2       |        
-+-----------------+
+|        x1       |   |                         |         |
+|        x2       |   |                         |         |
+|                 |   |        .trackingFileMap |         +- filemap.txt
+|                 |   |        .trackingSummary |         +- .trackingSummary.rda
+|                 |   |        .trackingUnsaved |
+|                 |   | .trackingSummaryChanged |
+|                 |   |        .trackingOptions |
++-----------------+   +-------------------------+
 
 }
 \itemize{
 \item variables marked (*) are tracked and are actually an active
-binding that refers to the corresponding variable in the tracking environment.
+binding that refers to the corresponding variable in the tracking
+environment.  There can also be untracked variables in the visible
+tracked environment, but in the standard mode of operation these are
+detected by the end-of-task callback function and are immediately
+converted to tracked variables (except for variables with reserved names
+like .trackingSummary, and variables matching exclude patterns, see
+options \code{autoTrackExcludePattern} and \code{autoTrackExcludeClass}
+in \link{track.options}.
 \item variables marked (@) may or may not exist -- if they do not exist in
   the tracking environment, they will be automatically read from file
   when the corresponding tracked object is accessed.
@@ -122,7 +131,7 @@ The tracking directory is organized as an R package.  It's layout is as follows 
 }
 
 \preformatted{
-/tmp/trackdir1 
+/tmp/trackdir1
       |
       +- filemap.txt
       +- .trackingSummary.rda
@@ -138,11 +147,11 @@ The tracking directory is organized as an R package.  It's layout is as follows 
 One could describe a tracking environment as "attached" to the tracked
 environment, but that using that term would risk confusion with the role
 of the \code{attach()} function and search path in R.  So, instead the
-\code{trackObjs} package says that a tracking environment is "linked" to
+\code{track} package says that a tracking environment is "linked" to
 the tracked environment.
 
   \describe{
-    \item{track:}{The \code{trackObjs} \emph{tracks} variables, by
+    \item{track:}{The \code{track} \emph{tracks} variables, by
       setting up a one-to-one relationship between R objects and files
       on disks so that when an object in R is modified, the file on disk
       is automatically updated.}
@@ -156,7 +165,7 @@ the tracked environment.
       environment is an ordinary object that is not tracked and has no
       corresponding file.}
     \item{tracking environment:}{A \emph{tracking} environment is a
-      special environment used by the \code{trackObjs} package to track
+      special environment used by the \code{track} package to track
       objects in the \emph{tracked} environment}
     \item{linked:}{A tracking environment is \emph{linked} to a tracked
       environment (by the \code{trackingEnv} attribute on the tracked
@@ -171,7 +180,7 @@ the tracked environment.
     }
 }
 
-\section{Untrackable variables}{
+\section{Untrackable variables -- reserved names}{
   Only ordinary variables can be tracked -- variables that are active
   bindings cannot be tracked.
 
@@ -205,8 +214,8 @@ from the visible environment and the underlying tracking environment
 
 Object tracking was intended to be used in situations where large
 numbers of large objects must be manipulated.  Consequently, there is a
-good chance of exhausting resources while using the \code{trackObjs}
-package.  The \code{trackObjs} code tries to check return codes when
+good chance of exhausting resources while using the \code{track}
+package.  The \code{track} code tries to check return codes when
 creating objects or writing files, and in cases where it is unable to
 complete an operation it tries leave the tracking environment in a state
 from which objects can be salvaged.  The functions
@@ -219,7 +228,7 @@ rewritten after resolving file system problems.
 
 The R functions \code{exists()} should be used with care on tracked
 objects, because it will actually fetch the object, possibly needing to
-read it from disk.  In the \code{trackObjs} code, the \code{exists("x")}
+read it from disk.  In the \code{track} code, the \code{exists("x")}
 function is not used to check existence of a possibly tracked object
 \code{x}, instead an idiom like \code{is.element("x", objects(all=TRUE))}
 is used.
@@ -257,21 +266,55 @@ different in R.)
   Tracking directories are intended to be operating-system independent
   and completely portable across different operating systems.
 }
-  
+
+\section{Compression}{
+
+  Saved R objects are compressed by default in R and by the \code{track}
+  package.  Decompression speed is
+  very important for interactive response when using track, because each
+  time an object is accessed, it is read from its file (unless the
+  object is cached).  Of the compression algorithms available as of
+  R-2.12.0, which are gzip, bzip2, and xz, gzip is the winner in terms
+  of speed.  The default compression level in R for gzip is 6, but level
+  1 gives faster compression with slightly larger files (though
+  decompression is not faster).  The lzop compression algorithm
+  \url{http://www.lzop.org} is still faster but it is not yet available in R.
+
+  Here are some comparisons and benchmarks of various compression
+  programs:
+  \itemize{
+      \item \url{http://www.linuxjournal.com/node/8051/print}
+      \item \url{http://tukaani.org/lzma/benchmarks.html}
+      \item \url{http://stephane.lesimple.fr/wiki/blog/lzop_vs_compress_vs_gzip_vs_bzip2_vs_lzma_vs_lzma2-xz_benchmark_reloaded}
+      \item \url{http://aliver.wordpress.com/2010/06/22/huge-unix-file-compresser-shootout-with-tons-of-datagraphs}
+      \item \url{http://www.maximumcompression.com/index.html}
+      \item \url{http://mattmahoney.net/dc/text.html}
+    }
+
+    Compression/decompression is nicely handled in R: only the call to
+    \code{save()} has arguments for compression.  Decompression in
+    \code{load()} is handled automatically using a standard code (magic)
+    at the start of the saved file.  Saved files can also be compressed
+    or decompressed outside of R, and \code{load()} will still handle
+    them correctly, provided the compression used is one of the types
+    that R knows about.
+
+  }
+
 \references{
 Roger D. Peng. Interacting with data using the filehash package. R
 News, 6(4):19-24, October
-2006. \code{http://cran.r-project.org/doc/Rnews} and
-\code{http://sandybox.typepad.com/software}
+2006. \url{http://cran.r-project.org/doc/Rnews} and
+\url{http://sandybox.typepad.com/software}
 
 David E. Brahm. Delayed data packages. R News, 2(3):11-12, December
-2002.  \code{http://cran.r-project.org/doc/Rnews}
+2002.  \url{http://cran.r-project.org/doc/Rnews}
 }
 
 \author{Tony Plate <tplate@acm.org>}
 
 \seealso{
-\link[=trackObjs-package]{Overview} of the \code{trackObjs} package.
+\link[=track-package]{Overview} of the \code{track} package.
 
 Documentation for \code{\link[base]{makeActiveBinding}} and related
 functions (in 'base' package).

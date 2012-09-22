@@ -1,0 +1,55 @@
+> # test clobbering of files vs vars
+> # test that track.sync can correctly pick up changes
+> options(error=function() NULL)
+> invisible(if (file.exists("tmp18")) unlink("tmp18", recursive=TRUE))
+> options(global.track.options=list(cacheKeepFun='none'))
+> track.start(dir="tmp18")
+Tracking <env R_GlobalEnv> (writable) using new directory 'tmp18'
+> x <- 1
+> y <- 2
+> track.stop(1)
+Stopping tracking on <env R_GlobalEnv>
+> x <- -1
+> track.start(dir="tmp18", clobber="var")
+Tracking <env R_GlobalEnv> (writable) using existing directory 'tmp18'
+> x
+[1] 1
+> y
+[1] 2
+> track.stop(1)
+Stopping tracking on <env R_GlobalEnv>
+> x <- -1
+> track.start(dir="tmp18", clobber="files")
+Tracking <env R_GlobalEnv> (writable) using existing directory 'tmp18'
+> x
+[1] -1
+> y
+[1] 2
+> track.stop(1)
+Stopping tracking on <env R_GlobalEnv>
+> # Try corrupting the tracking db by removing a file
+> unlink("tmp18/x.rda")
+> track.start(dir="tmp18")
+Tracking <env R_GlobalEnv> (writable) using existing directory 'tmp18'
+Warning message:
+In track.start(dir = "tmp18") :
+  missing files for some variables in the fileMap (supply discardMissing=TRUE or remove or assign variables to repair): x
+> x
+#@gsub("file '.*/x.rda' does not exist", "file 'x.rda' does not exist", both)
+Error in getTrackedVar("x", <environment>) : 
+  file 'D:/tplate/R/rforge/trackobjs/tmp18/x.rda' does not exist (for obj 'x')
+> track.summary(size=F, times=F, cache=TRUE)
+    class    mode extent length cache TA TW
+x numeric numeric    [1]      1    no  2  1
+y numeric numeric    [1]      1    no  2  1
+> x <- 1:3
+> x
+[1] 1 2 3
+> track.summary(size=F, times=F, cache=TRUE)
+    class    mode extent length cache TA TW
+x integer numeric    [3]      3    no  3  2
+y numeric numeric    [1]      1    no  2  1
+> track.stop()
+Stopping tracking on <env R_GlobalEnv>
+> unlink("tmp18", recursive=TRUE)
+> 

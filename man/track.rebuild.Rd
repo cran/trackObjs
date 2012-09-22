@@ -10,7 +10,7 @@
 \usage{
 track.rebuild(pos = 1, envir = as.environment(pos), dir = NULL,
         fix = FALSE, level=c("missing", "all"), trust=c("unspecified", "environment", "db"),
-        verbose=1, RDataSuffix=NULL, dry.run=TRUE, replace.wd=TRUE,
+        verbose=1, RDataSuffix=NULL, dryRun=TRUE, replace.wd=TRUE,
         use.file.times=TRUE)
 }
 
@@ -21,7 +21,7 @@ track.rebuild(pos = 1, envir = as.environment(pos), dir = NULL,
   \item{fix}{ If \code{TRUE}, try to fix various problems such as
     illegal file names by renaming files or moving unusable
     RData files to a 'quarantine' directory.  If \code{fix=TRUE} and
-    \code{dry.run=TRUE}, changes will be reported but not made.  }
+    \code{dryRun=TRUE}, changes will be reported but not made.  }
   \item{level}{If \code{"missing"}, rebuild only missing information, if
     \code{"all"}, rebuild information for all objects.}
   \item{trust}{When rebuilding an active tracking database, and there
@@ -30,7 +30,7 @@ track.rebuild(pos = 1, envir = as.environment(pos), dir = NULL,
   \item{verbose}{Controls number of messages about progress}
   \item{RDataSuffix}{What suffix should be used for RData files?
     (Usually worked out automatically.)}
-  \item{dry.run}{If \code{TRUE}, no data objects in R or files on disk
+  \item{dryRun}{If \code{TRUE}, no data objects in R or files on disk
     are changed: the return value is a list containing the rebuilt file map and
     the rebuilt object summary.  If \code{FALSE}, objects in R
     environments and files on disk can be changed.  The default is
@@ -69,35 +69,45 @@ track.rebuild(pos = 1, envir = as.environment(pos), dir = NULL,
   \item{masked}{(optinal) The names of tracked variables that are masked
     by other variables in the tracked environment.
     This component is only present if it is non-empty.}
-  The returned value is visible if \code{dry.run=TRUE} and invisible otherwise.
+  The returned value is invisible.
 }
 
 \author{Tony Plate <tplate@acm.org>}
-\seealso{ \link[=trackObjs-package]{Overview} and \link[=track.design]{design} of the \code{trackObjs} package. }
+\seealso{ \link[=track-package]{Overview} and \link[=track.design]{design} of the \code{track} package. }
 \examples{
+##############################################################
+# Warning: running this example will cause variables currently
+# in the R global environment to be written to .RData files
+# in a tracking database on the filesystem under R's temporary
+# directory, and will cause the variables to be removed temporarily
+# from the R global environment.
+# It is recommended to run this example with a fresh R session
+# with no important variables in the global environment.
+##############################################################
+
 # Rebuild a damaged tracking database
 library(trackObjs)
-unlink("tmp1", recursive=TRUE)
-# build a tracking dir populated with some variables
-track.start("tmp1")
-track(x <- 33)
-track(X <- array(1:24, dim=2:4))
-track(Y <- list(a=1:3,b=2))
+# first build a tracking dir populated with some variables
+track.start(dir=file.path(tempdir(), 'rdatadir7'))
+x <- 33
+X <- array(1:24, dim=2:4)
+Y <- list(a=1:3,b=2)
 X[2] <- -1
-track(abc <- "def")
-track(def <- list(1,2,3))
+abc <- "def"
+def <- list(1,2,3)
 invisible(Y); invisible(abc); invisible(abc); invisible(abc)
 track.summary()
-track.stop()
+track.stop(pos=1)
 # damage the database (remove the filemap)
-unlink("tmp1/filemap.txt")
+unlink(file.path(tempdir(), 'rdatadir7', 'filemap.txt'))
 # and rebuild
-track.rebuild(dir="tmp1", verbose=2, dry.run=FALSE, fix=TRUE)
-track.start("tmp1")
+track.rebuild(dir=file.path(tempdir(), 'rdatadir7'), verbose=2, dryRun=FALSE, fix=TRUE)
+track.start(file.path(tempdir(), 'rdatadir7'))
 track.summary()
 track.status()
-track.stop()
-unlink("tmp1", recursive=TRUE)
+# Would normally not call track.stop(), but do so here to clean up after
+# running this example.
+track.stop(pos=1, keepVars=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

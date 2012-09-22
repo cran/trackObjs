@@ -1,6 +1,79 @@
-Startup problems: automatically constructed variables in the globalenv prevent track.start() from working properly -- check if they are the same, and print their names in the error message
+> for (i in 1:1000) assign(paste("a", i, sep=""), i)
+> date(); for (i in 1:1000) assign(paste("b", i, sep=""), i); date()
+[1] "Sun Jul 04 18:01:24 2010"
+[1] "Sun Jul 04 18:02:39 2010"
+> 
+> x <- ls()
+> system.time(sapply(x, bindingIsActive, globalenv()))
+   user  system elapsed 
+   0.11    0.00    0.11 
+> date(); for (i in 1:1000) assign(paste("c", i, sep=""), i); date()
+[1] "Sun Jul 04 18:10:34 2010"
+[1] "Sun Jul 04 18:12:31 2010"
+> date()
+[1] "Sun Jul 04 18:12:31 2010"
+> date(); for (i in 1:1000) assign(paste("d", i, sep=""), i); date()
+[1] "Sun Jul 04 18:12:31 2010"
+[1] "Sun Jul 04 18:15:07 2010"
+> date()
+[1] "Sun Jul 04 18:15:07 2010"
+> date(); for (i in 1:1000) assign(paste("e", i, sep=""), i); date()
+[1] "Sun Jul 04 18:15:07 2010"
+[1] "Sun Jul 04 18:18:54 2010"
+> date()
+[1] "Sun Jul 04 18:18:54 2010"
+> system.time(sapply(x, bindingIsActive, globalenv()))
+   user  system elapsed 
+   0.19    0.00    0.19 
+> x <- ls()
+> length(x)
+[1] 5019
+> system.time(sapply(x, bindingIsActive, globalenv()))
+   user  system elapsed 
+   0.33    0.00    0.32 
+> date(); for (i in 1:1000) assign(paste("f", i, sep=""), i); date()
+[1] "Sun Jul 04 18:21:54 2010"
+[1] "Sun Jul 04 18:28:20 2010"
+> date(); for (i in 1:1000) assign(paste("g", i, sep=""), i); date()
+[1] "Sun Jul 04 18:28:20 2010"
+[1] "Sun Jul 04 18:41:20 2010"
+> date(); for (i in 1:1000) assign(paste("h", i, sep=""), i); date()
+[1] "Sun Jul 04 18:41:20 2010"
+[1] "Sun Jul 04 18:56:05 2010"
+> date(); for (i in 1:1000) assign(paste("i", i, sep=""), i); date()
+[1] "Sun Jul 04 18:56:05 2010"
+[1] "Sun Jul 04 19:11:51 2010"
+> date(); for (i in 1:1000) assign(paste("j", i, sep=""), i); date()
+[1] "Sun Jul 04 19:11:51 2010"
+[1] "Sun Jul 04 19:28:34 2010"
+> x <- ls()
+> system.time(sapply(x, bindingIsActive, globalenv()))
+   user  system elapsed 
+   0.64    0.00    0.64 
+> 
 
-Doesn't properly release memory.
+todo: make track.stop() more versatile -- keep variables (with or without deleting files)
+doing: change existing tests to use auto=FALSE and add tests for the default auto=TRUE
+done: add tests for existing x in track(x <- value)
+done: document track.sync()
+
+done: explain defaults of functions better in track.manage.Rd
+
+done: explain status better in track.status.Rd
+
+fixed for .Random.seed: Startup problems: automatically constructed variables in the globalenv prevent track.start() from working properly -- check if they are the same, and print their names in the error message
+
+done: Write track.sync() - like track(all=TRUE), use in http://developer.r-project.org/TaskHandlers.pdf
+
+done: fix behavior of track(x <- 33) so that if 'x' already exists and has a regular binding, we don't get an error (just overwrite 'x'?)
+
+> x <- 1:2
+> track(x <- 33)
+Error in makeActiveBinding(objname, env = envir, fun = f) : 
+  symbol already has a regular binding
+>
+
+Doesn't properly release memory (did I fix this with the environment assignment in track() ?)
 
 This doesn't result in increasing memory usage:
 n <- 10
